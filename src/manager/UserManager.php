@@ -102,7 +102,7 @@
 
             try {
                 $user = $this->userModel->createUser($username, $password);
-                return $user['id'];
+                return $user[0]['id'];
             } catch (Exception $e) {
                 echo($e->getMessage());
             }
