@@ -2,7 +2,7 @@
 
     class Database
     {
-        protected  $connection = null;
+        protected $connection = null;
 
         /**
          * @throws Exception
@@ -21,6 +21,9 @@
         }
 
         /**
+         * Selects rows from the database
+         *
+         *
          * @throws Exception
          */
         public function select($query = "", $params = []): array
@@ -37,9 +40,72 @@
         }
 
         /**
+         * Inserts a new row into the database.
+         *
+         * @param string $query
+         * @param array $params
+         * @return int
          * @throws Exception
          */
-        private function executeStatement($query = "", $params = []): mysqli_stmt
+        public function insert(string $query = "", array $params = []): int
+        {
+            try {
+                $stmt = $this->executeStatement($query, $params);
+                $result = $stmt->insert_id;
+                $stmt->close();
+
+                return $result;
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+        }
+
+        /**
+         * Updates a row in the database.
+         *
+         * @param string $query
+         * @param array $params
+         * @return int
+         * @throws Exception
+         */
+        public function update(string $query = "", array $params = []): int
+        {
+            try {
+                $stmt = $this->executeStatement($query, $params);
+                $result = $stmt->affected_rows;
+                $stmt->close();
+
+                return $result;
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+        }
+
+        /**
+         * Deletes a row from the database.
+         *
+         * @param string $query
+         * @param array $params
+         * @return int
+         * @throws Exception
+         */
+        public function delete(string $query = "", array $params = []): int
+        {
+            try {
+                $stmt = $this->executeStatement($query, $params);
+                $result = $stmt->affected_rows;
+                $stmt->close();
+
+                return $result;
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+        }
+
+        /**
+         * @throws Exception
+         */
+        protected function executeStatement($query = "", $params = []): mysqli_stmt
         {
             try {
                 $stmt = $this->connection->prepare($query);
@@ -49,7 +115,7 @@
                 }
 
                 if ($params) {
-                    $stmt->bind_param($params[0], $params[1]);
+                    $stmt->bind_param($params[0], ...array_slice($params, 1));
                 }
 
                 $stmt->execute();
