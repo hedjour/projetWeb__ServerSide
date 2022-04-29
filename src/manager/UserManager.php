@@ -102,7 +102,7 @@
 
             try {
                 $user = $this->userModel->createUser($username, $password);
-                return $user['id'];
+                return $user[0]['id'];
             } catch (Exception $e) {
                 echo($e->getMessage());
             }
@@ -163,7 +163,8 @@
          *
          * @throws Exception
          */
-        public function updateUser(string $username, string $email, string $password){
+        public function updateUser(string $username, string $email, string $password)
+        {
             $userId = $_SESSION[self::SESSION_FIELD_USER_ID];
 
 

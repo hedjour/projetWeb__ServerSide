@@ -15,6 +15,9 @@
         const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
         const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
 
+        /**
+         * @throws Exception
+         */
         public function getUsers(int $limit): array
         {
             return $this->select("SELECT 
