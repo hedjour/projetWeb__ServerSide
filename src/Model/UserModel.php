@@ -18,7 +18,7 @@
         public function getUsers(int $limit): array
         {
             return $this->select("SELECT 
-                                            ".$this::USER_FIELDS_SAFE."
+                                            " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         ORDER BY 
@@ -37,7 +37,7 @@
         public function getUserById(int $id): array
         {
             return $this->select("SELECT 
-                                            ".$this::USER_FIELDS_SAFE."
+                                            " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
@@ -53,7 +53,7 @@
         public function getUserByUsername(string $username): array
         {
             return $this->select("SELECT 
-                                            ".$this::USER_FIELDS_SAFE."
+                                            " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
@@ -71,7 +71,7 @@
         public function getUserByEmail($userEmail): array
         {
             return $this->select("SELECT 
-                                            ".$this::USER_FIELDS_SAFE."
+                                            " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
@@ -89,7 +89,7 @@
         public function getUserByUsernameAndPassword(string $username): array
         {
             return $this->select("SELECT 
-                                            ".$this::USER_FIELDS."
+                                            " . $this::USER_FIELDS . "
                                         FROM 
                                             user 
                                         WHERE 
@@ -117,6 +117,46 @@
                             VALUES (?, ?, ?, ?, ?, ?)",
                 ["ssssss", $username, $password, $firstname, $surname, $email, $profilePicture]);
         }
+
+        /**
+         * update a user
+         *
+         * @param int $userId The id of the user to update
+         * @param string|null $username The username of the user to update
+         * @param string|null $password The password of the user to update
+         * @param string|null $firstname The firstname of the user to update
+         * @param string|null $surname The surname of the user to update
+         * @param string|null $email The email of the user to update
+         * @param string|null $profilePicture The profile picture of the user to update
+         * @return int the id of the updated user
+         * @throws Exception If the user doesn't exist
+         */
+        public function updateUser(int    $userId,
+                                   string $username = null,
+                                   string $password = null,
+                                   string $firstname = null,
+                                   string $surname = null,
+                                   string $email = null,
+                                   string $profilePicture = null): int
+        {
+            return $this->update("UPDATE user SET username = ?, password = ?, firstname = ?, surname = ?, email = ?, profile_picture = ? 
+                            WHERE id = ?",
+                ["ssssssi", $username, $password, $firstname, $surname, $email, $profilePicture, $userId]);
+        }
+
+
+        /**
+         * delete a user
+         *
+         * @param int $userId The id of the user to delete
+         * @return int the id of the deleted user
+         * @throws Exception If the user doesn't exist
+         */
+        public function deleteUser(int $userId): int
+        {
+            return $this->delete("DELETE FROM user WHERE id = ?", ["i", $userId]);
+        }
+
 
         /**
          * Get the rooms of a user

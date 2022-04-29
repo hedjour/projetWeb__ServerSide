@@ -368,7 +368,7 @@
                     $userManager = new UserManager();
                     try {
                         $userManager->login($arrQueryStringParams['name'], $arrQueryStringParams['password']);
-                        $responseData = json_encode(array('success' => 'User created'));
+                        $responseData = json_encode(array('success' => 'User logged in'));
 
                     } catch (Exception $e) {
                         $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
@@ -397,5 +397,97 @@
                 );
             }
         }
+
+        /**
+         * Logout the user with POST method
+         *
+         */
+
+        public function logoutAction(){
+            $strErrorDesc = '';
+            $responseData = array();
+            $strErrorHeader = '';
+            $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+            if (strtoupper($requestMethod) == 'POST') {
+                try {
+                    $userManager = new UserManager();
+                    try {
+                        $userManager->logout();
+                        $responseData = json_encode(array('success' => 'User logged out'));
+
+                    } catch (Exception $e) {
+                        $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
+                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
+                    }
+
+                } catch (Exception $e) {
+                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
+                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+
+                }
+            } else {
+                $strErrorDesc = 'Method not supported';
+                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            }
+
+            // send output
+            if (!$strErrorDesc) {
+                $this->sendOutput(
+                    $responseData,
+                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+                );
+            } else {
+                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
+                    array('Content-Type: application/json', $strErrorHeader)
+                );
+            }
+        }
+
+        /**
+         * Update the user with PUT method
+         *
+         */
+        public function updateAction(){
+            $strErrorDesc = '';
+            $responseData = array();
+            $strErrorHeader = '';
+            $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+            if (strtoupper($requestMethod) == 'PUT') {
+                try {
+                    $userManager = new UserManager();
+                    try {
+//                        $userManager-);
+                        $responseData = json_encode(array('success' => 'User updated'));
+
+                    } catch (Exception $e) {
+                        $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
+                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
+                    }
+
+                } catch (Exception $e) {
+                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
+                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+
+                }
+            } else {
+                $strErrorDesc = 'Method not supported';
+                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            }
+
+            // send output
+            if (!$strErrorDesc) {
+                $this->sendOutput(
+                    $responseData,
+                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+                );
+            } else {
+                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
+                    array('Content-Type: application/json', $strErrorHeader)
+                );
+            }
+        }
+
     }
     

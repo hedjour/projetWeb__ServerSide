@@ -1,7 +1,6 @@
 <?php
     require_once 'api.php';
     require_once PROJECT_ROOT_PATH . 'manager/UserManager.php';
-    session_start();
     $userManger = new UserManager();
 //    try {
 //        $userManger->createUser('adqweasd', "password");
@@ -15,6 +14,6 @@
     echo json_encode($_SESSION);
     $userManger->login('adqweasd', "password");
     echo json_encode($_SESSION);
-
-
     $userManger->logout();
+    echo json_encode($_SESSION);
+

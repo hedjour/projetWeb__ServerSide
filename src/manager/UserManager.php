@@ -90,7 +90,6 @@
                 $occurrencesOfUsername = $this->userModel->select(
                     'SELECT * FROM user WHERE username = ?',
                     ["s", $username]);
-                echo json_encode($occurrencesOfUsername);
                 // if any user with that username does already exist
                 if (count($occurrencesOfUsername) > 0) {
                     // cancel the operation and report the violation of this requirement
@@ -98,12 +97,12 @@
                 }
             }
 
-            $password = \password_hash($password, \PASSWORD_DEFAULT);
+            $password = \password_hash($password, \PASSWORD_BCRYPT);
             $verified = \is_callable($callback) ? 0 : 1;
 
             try {
                 $user = $this->userModel->createUser($username, $password);
-                return $user[0]['id'];
+                return $user['id'];
             } catch (Exception $e) {
                 echo($e->getMessage());
             }
@@ -121,9 +120,9 @@
          */
         protected function onLoginSuccessful(int $userId)
         {
-            session_destroy();
-            session_start();
+            session_unset();
 
+            $userData = $this->userModel->getUserById($userId);
             $userData = $this->userModel->getUserById($userId);
             // save the user data in the session variables maintained by this library
             $_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
@@ -145,17 +144,29 @@
         public function login(string $username, string $password)
         {
             $userData = $this->userModel->getUserByUsernameAndPassword($username);
-            echo json_encode($userData);
-            echo $password;
-            if (!\password_verify($password, $userData['password'])) {
+            if (!\password_verify($password, $userData[0]['password'])) {
                 throw new Exception("Invalid username or password");
             }
 
-            $this->onLoginSuccessful($userData['id']);
+            $this->onLoginSuccessful($userData[0]['id']);
         }
 
         public function logout()
         {
-            session_destroy();
+            session_unset();
+
+        }
+
+
+        /**
+         * Updates the user's credentials
+         *
+         * @throws Exception
+         */
+        public function updateUser(string $username, string $email, string $password){
+            $userId = $_SESSION[self::SESSION_FIELD_USER_ID];
+
+
+            $this->userModel->updateUser($userId, $username, $email, $password);
         }
     }

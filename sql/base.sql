@@ -123,3 +123,4 @@ FROM message
                     ON message.user_id = user.id
 WHERE message.chat_room_id = 1
 ORDER BY message.sent_date
+
