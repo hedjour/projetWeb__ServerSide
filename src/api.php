@@ -1,6 +1,7 @@
 <?php
 
 
+    use Controllers\ChatRoomController;
     use Controllers\UserController;
 
     require __DIR__ . "/inc/bootstrap.php";
@@ -19,10 +20,24 @@
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
 
-    if ((isset($uri[2]) && $uri[2] != 'user') || !isset($uri[3])) {
+    if (isset($uri[2]) ){
+        switch ($uri[2]){
+            case 'user':
+                $userController = new UserController();
+                $strMethodName = $uri[3] . 'Action';
+                $userController->{$strMethodName}();
+                break;
+            case 'chatroom':
+                $chatRoomController = new ChatRoomController();
+                $strMethodName = $uri[3] . 'Action';
+                $chatRoomController->{$strMethodName}();
+                break;
+            default:
+                header("HTTP/1.1 404 Not Found");
+                exit();
+        }
+    }
+    else {
         header("HTTP/1.1 404 Not Found");
         exit();
     }
-    $objFeedController = new UserController();
-    $strMethodName = $uri[3] . 'Action';
-    $objFeedController->{$strMethodName}();
