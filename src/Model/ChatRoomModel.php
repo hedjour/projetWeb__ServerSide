@@ -1,5 +1,7 @@
 <?php
-    require_once PROJECT_ROOT_PATH . "/Model/Database.php";
+    namespace Models;
+
+    use Exception;
 
     class ChatRoomModel extends Database
     {

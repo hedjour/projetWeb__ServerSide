@@ -1,6 +1,6 @@
 <?php
 
-
+    namespace Controllers;
     class BaseController
     {
         /**
@@ -32,6 +32,20 @@
             parse_str($_SERVER['QUERY_STRING'], $query);
             return $query;
         }
+
+        /**
+         * Get post params.
+         */
+        protected function getPostData(): array
+        {
+            $data = file_get_contents('php://input');
+            if ($data) {
+                return json_decode($data, true);
+            } else {
+                return array();
+            }
+        }
+
 
         /**
          * Send API output.

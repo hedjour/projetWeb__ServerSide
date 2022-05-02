@@ -1,7 +1,12 @@
 <?php
-    require_once PROJECT_ROOT_PATH . 'Model/UserModel.php';
-    require_once PROJECT_ROOT_PATH . 'manager/InvalidEmailException.php';
-    require_once PROJECT_ROOT_PATH . 'manager/InvalidPasswordException.php';
+
+    namespace Managers;
+    use Auth\Exceptions\InvalidEmailException;
+    use Auth\Exceptions\InvalidPasswordException;
+    use Auth\Exceptions\NotLoggedInException;
+    use Auth\Exceptions\WrongCredentialsException;
+    use Exception;
+    use Models\UserModel;
 
     class UserManager
     {
@@ -30,12 +35,12 @@
         }
 
         /**
-         * @throws InvalidEmailException
+         * @throws  InvalidEmailException
          */
         protected static function validateEmailAddress($email): string
         {
             if (empty($email)) {
-                throw new InvalidEmailException();
+                throw new  InvalidEmailException();
             }
 
             $email = \trim($email);
@@ -145,15 +150,30 @@
         {
             $userData = $this->userModel->getUserByUsernameAndPassword($username);
             if (!\password_verify($password, $userData[0]['password'])) {
-                throw new Exception("Invalid username or password");
+                throw new WrongCredentialsException();
             }
 
             $this->onLoginSuccessful($userData[0]['id']);
         }
 
+        /**
+         *  Logs out the user
+         *
+         *
+         * @throws NotLoggedInException
+         */
         public function logout()
         {
-            session_unset();
+            if( isset($_SESSION[self::SESSION_FIELD_LOGGED_IN]) ) {
+                unset($_SESSION[self::SESSION_FIELD_LOGGED_IN]);
+                unset($_SESSION[self::SESSION_FIELD_USER_ID]);
+                unset($_SESSION[self::SESSION_FIELD_EMAIL]);
+                unset($_SESSION[self::SESSION_FIELD_USERNAME]);
+                unset($_SESSION[self::SESSION_FIELD_LAST_RESYNC]);
+            }
+            else {
+                throw new NotLoggedInException();
+            }
 
         }
 
@@ -161,12 +181,14 @@
         /**
          * Updates the user's credentials
          *
-         * @throws Exception
+         * @throws NotLoggedInException
          */
         public function updateUser(string $username, string $email, string $password)
         {
             $userId = $_SESSION[self::SESSION_FIELD_USER_ID];
-
+            if ($userId === null) {
+                throw new NotLoggedInException();
+            }
 
             $this->userModel->updateUser($userId, $username, $email, $password);
         }
