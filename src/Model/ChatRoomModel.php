@@ -1,4 +1,5 @@
 <?php
+
     namespace Models;
 
     use Exception;
@@ -59,14 +60,14 @@
          * @return array The messages of the chat room
          * @throws Exception If the chat room does not exist
          */
-        public function getMessages(int $chatRoomId, int $limit): array
+        public function getMessages(int $chatRoomId, int $limit = 10): array
         {
             return $this->select("SELECT * 
                                         FROM message 
                                         WHERE chat_room_id = ? 
                                         ORDER BY sent_date DESC 
                                         LIMIT ?
-                                        ", ["i", $chatRoomId, "i", $limit]);
+                                        ", ["ii", $chatRoomId, $limit]);
         }
 
         /**

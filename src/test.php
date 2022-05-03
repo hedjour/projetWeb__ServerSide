@@ -1,11 +1,10 @@
 <?php
+    require_once 'inc/bootstrap.php';
 
     use Auth\Exceptions\InvalidEmailException;
     use Auth\Exceptions\InvalidPasswordException;
     use Managers\UserManager;
 
-    require_once 'api.php';
-    require_once PROJECT_ROOT_PATH . 'manager/UserManager.php';
     $userManger = new UserManager();
     try {
         $userManger->createUser('adqweasd', "password");

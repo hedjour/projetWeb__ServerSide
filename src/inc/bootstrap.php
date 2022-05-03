@@ -5,16 +5,29 @@
 // include main configuration file
     require_once PROJECT_ROOT_PATH . "/inc/config.php";
 
-//// include the base controller file
-    require_once PROJECT_ROOT_PATH . "/Controller/Api/BaseController.php";
-    require_once PROJECT_ROOT_PATH . "/Controller/Api/UserController.php";
-    require_once PROJECT_ROOT_PATH . "/Controller/Api/ChatRoomController.php";
+    // include the exceptions
+    foreach (glob(PROJECT_ROOT_PATH . "exceptions/*") as $filename) {
+        require_once $filename;
+    }
 
-// include the use model file
-    require_once PROJECT_ROOT_PATH . "/Model/UserModel.php";
-    require_once PROJECT_ROOT_PATH . "/Model/Database.php";
-    require_once PROJECT_ROOT_PATH . "/Model/ChatRoomModel.php";
-    require_once PROJECT_ROOT_PATH . "/manager/UserManager.php";
+    // include the models
+    require_once PROJECT_ROOT_PATH . "Model/Database.php";
+    foreach (glob(PROJECT_ROOT_PATH . "Model/*") as $filename) {
+        if ($filename!= "Model/Database.php") {
+            require_once $filename;
+        }
+    }
 
-    require_once PROJECT_ROOT_PATH . "/exceptions/exceptions.inc.php";
+    // include the managers
+    foreach (glob(PROJECT_ROOT_PATH . "manager/*") as $filename) {
+        require_once $filename;
+    }
 
+    // include the controllers
+    require_once PROJECT_ROOT_PATH . "Controller/Api/BaseController.php";
+    foreach (glob(PROJECT_ROOT_PATH . "Controller/Api/*") as $filename) {
+        if($filename != "Controller/Api/BaseController.php") {
+            require_once $filename;
+        }
+
+    }

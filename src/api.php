@@ -24,13 +24,11 @@
         switch ($uri[2]){
             case 'user':
                 $userController = new UserController();
-                $strMethodName = $uri[3] . 'Action';
-                $userController->{$strMethodName}();
+                $userController->{$uri[3] . 'Action'}();
                 break;
             case 'chatroom':
                 $chatRoomController = new ChatRoomController();
-                $strMethodName = $uri[3] . 'Action';
-                $chatRoomController->{$strMethodName}();
+                $chatRoomController->{$uri[3] . 'Action'}();
                 break;
             default:
                 header("HTTP/1.1 404 Not Found");

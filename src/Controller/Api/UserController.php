@@ -19,7 +19,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -61,7 +61,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $queryStringParams = $this->getQueryStringParams();
+            $queryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -113,7 +113,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -165,7 +165,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -216,7 +216,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -267,7 +267,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -321,7 +321,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'POST') {
                 try {
@@ -368,8 +368,8 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
-            $postData = $this->getPostData();
+            $arrQueryStringParams = $this->getGETData();
+            $postData = $this->getPOSTData();
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
