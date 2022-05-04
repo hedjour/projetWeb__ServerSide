@@ -1,5 +1,10 @@
 <?php
 
+    namespace Models;
+    use Exception;
+    use mysqli;
+    use mysqli_stmt;
+
     class Database
     {
         protected $connection = null;

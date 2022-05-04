@@ -1,6 +1,6 @@
 <?php
 
-
+    namespace Controllers;
     class BaseController
     {
         /**
@@ -26,12 +26,26 @@
          * Get querystring params.
          *
          */
-        protected function getQueryStringParams(): array
+        protected function getGETData(): array
         {
             $query = array();
             parse_str($_SERVER['QUERY_STRING'], $query);
             return $query;
         }
+
+        /**
+         * Get post params.
+         */
+        protected function getPOSTData(): array
+        {
+            $data = file_get_contents('php://input');
+            if ($data) {
+                return json_decode($data, true);
+            } else {
+                return array();
+            }
+        }
+
 
         /**
          * Send API output.
@@ -41,7 +55,6 @@
          */
         protected function sendOutput(string $data, array $httpHeaders = array()): void
         {
-            header_remove('Set-Cookie');
 
             if (is_array($httpHeaders) && count($httpHeaders)) {
                 foreach ($httpHeaders as $httpHeader) {

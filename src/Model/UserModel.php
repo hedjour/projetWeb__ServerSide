@@ -1,5 +1,9 @@
 <?php
-    require_once PROJECT_ROOT_PATH . "/Model/Database.php";
+
+    namespace Models;
+    require_once PROJECT_ROOT_PATH . 'Model/Database.php';
+    use Auth\Exceptions\DatabaseError;
+    use Exception;
 
     class UserModel extends Database
     {
@@ -15,9 +19,13 @@
         const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
         const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
 
+        /**
+         * @throws Exception
+         */
         public function getUsers(int $limit): array
         {
-            return $this->select("SELECT 
+            try {
+                return $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
@@ -25,7 +33,12 @@
                                             id 
                                         LIMIT 
                                             ?",
-                ["i", $limit]);
+                    ["i", $limit]);
+
+            } catch (Exception $e) {
+                throw new DatabaseError($e->getMessage());
+            }
+
         }
 
         /**
@@ -68,7 +81,7 @@
          * @return array The user
          * @throws Exception If the user doesn't exist
          */
-        public function getUserByEmail($userEmail): array
+        public function getUserByEmail(string $userEmail): array
         {
             return $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
@@ -82,7 +95,6 @@
         /**
          * Get a user by their username and password
          * @param $username string The username of the user to get
-         * @param $password string The password of the user to get
          * @return array The user
          * @throws Exception
          */

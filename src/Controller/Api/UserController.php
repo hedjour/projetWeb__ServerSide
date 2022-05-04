@@ -1,5 +1,13 @@
 <?php
 
+    namespace Controllers;
+
+    use Auth\Exceptions\NotLoggedInException;
+    use Auth\Exceptions\WrongCredentialsException;
+    use Exception;
+    use Managers\UserManager;
+    use Models\UserModel;
+
     class UserController extends BaseController
     {
         /**
@@ -11,7 +19,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -53,7 +61,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $queryStringParams = $this->getQueryStringParams();
+            $queryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -105,7 +113,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -157,7 +165,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -208,7 +216,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -220,9 +228,7 @@
                         if (!($arrMessages and count($arrMessages) != 0)) {
                             $strErrorDesc = 'User not found';
                             $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        }
-
-                        else {
+                        } else {
 
                             $responseData = json_encode($arrMessages);
                         }
@@ -261,7 +267,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
@@ -315,7 +321,7 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
+            $arrQueryStringParams = $this->getGETData();
 
             if (strtoupper($requestMethod) == 'POST') {
                 try {
@@ -356,22 +362,31 @@
          * Login the user with POST method
          *
          */
-        public function loginUserAction(){
+        public function loginAction()
+        {
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getQueryStringParams();
-
+            $arrQueryStringParams = $this->getGETData();
+            $postData = $this->getPOSTData();
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
                     try {
-                        $userManager->login($arrQueryStringParams['name'], $arrQueryStringParams['password']);
-                        $responseData = json_encode(array('success' => 'User logged in'));
+                        if (isset($postData['username']) && isset($postData['password'])) {
+                            $userManager->login($postData['username'], $postData['password']);
+                            $responseData = json_encode(array('success' => 'User logged in'));
+                        } else {
+                            $strErrorDesc = 'Arguments missing or invalid';
+                            $strErrorHeader = 'HTTP/1.1 400 Bad Request';
+                        }
 
+                    } catch (WrongCredentialsException $e) {
+                        $strErrorDesc = 'Wrong credentials';
+                        $strErrorHeader = 'HTTP/1.1 401 Unauthorized';
                     } catch (Exception $e) {
-                        $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
+                        $strErrorDesc = $e->getMessage() . json_encode($postData);
                         $strErrorHeader = 'HTTP/1.1 418 Bad Request';
                     }
 
@@ -403,7 +418,8 @@
          *
          */
 
-        public function logoutAction(){
+        public function logoutAction()
+        {
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
@@ -415,10 +431,12 @@
                     try {
                         $userManager->logout();
                         $responseData = json_encode(array('success' => 'User logged out'));
-
+                    } catch (NotLoggedInException $e) {
+                        $strErrorDesc = 'User not logged in';
+                        $strErrorHeader = 'HTTP/1.1 401 Unauthorized';
                     } catch (Exception $e) {
-                        $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
-                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
+                        $strErrorDesc = $e->getMessage();
+                        $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
                     }
 
                 } catch (Exception $e) {
@@ -448,7 +466,8 @@
          * Update the user with PUT method
          *
          */
-        public function updateAction(){
+        public function updateAction()
+        {
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
@@ -458,6 +477,7 @@
                 try {
                     $userManager = new UserManager();
                     try {
+                        #TODO
 //                        $userManager-);
                         $responseData = json_encode(array('success' => 'User updated'));
 
