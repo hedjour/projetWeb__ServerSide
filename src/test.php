@@ -7,7 +7,7 @@
 
     $userManger = new UserManager();
     try {
-        $userManger->createUser('adqweasd', "password");
+        $userManger->createUser('testUser', "password");
     } catch (InvalidEmailException $e) {
         echo 'Invalid email';
     } catch (InvalidPasswordException $e) {
@@ -16,7 +16,7 @@
         echo 'Error';
     }
     echo json_encode($_SESSION);
-    $userManger->login('adqweasd', "password");
+    $userManger->login('testUser', "password");
     echo json_encode($_SESSION);
     $userManger->logout();
     echo json_encode($_SESSION);

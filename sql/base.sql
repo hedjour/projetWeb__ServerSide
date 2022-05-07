@@ -79,16 +79,16 @@ ALTER TABLE `pixel`
 
 # create debug users
 INSERT INTO user (username, password)
-VALUES ('user1', '619f84fdd982e31571c30a2ed9d7b402');
+VALUES ('user1', '$2y$10$2o9ZtmWevHrMFFn1g9BYSOnpUyq6PxcL8GFl6DQpTy8uNssgaUEeq');
 
 INSERT INTO user (username, password)
-VALUES ('user2', '619f84fdd982e31571c30a2ed9d7b402');
+VALUES ('user2', '$2y$10$2o9ZtmWevHrMFFn1g9BYSOnpUyq6PxcL8GFl6DQpTy8uNssgaUEeq');
 
 INSERT INTO user (username, password)
-VALUES ('user3', '619f84fdd982e31571c30a2ed9d7b402');
+VALUES ('user3', '$2y$10$2o9ZtmWevHrMFFn1g9BYSOnpUyq6PxcL8GFl6DQpTy8uNssgaUEeq');
 
 INSERT INTO user (username, password)
-VALUES ('user4', '619f84fdd982e31571c30a2ed9d7b402');
+VALUES ('user4', '$2y$10$2o9ZtmWevHrMFFn1g9BYSOnpUyq6PxcL8GFl6DQpTy8uNssgaUEeq');
 
 
 # create debug chat rooms
