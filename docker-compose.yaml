@@ -42,20 +42,20 @@ services:
       - data:/var/lib/mysql
 
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    links:
-      - db
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    restart: always
-    ports:
-      - "8082:80"
-    networks:
-      # Connects to the network named 'default'
-      - default
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin
+#    links:
+#      - db
+#    environment:
+#      PMA_HOST: db
+#      PMA_PORT: 3306
+#      PMA_ARBITRARY: 1
+#    restart: always
+#    ports:
+#      - "8082:80"
+#    networks:
+#      # Connects to the network named 'default'
+#      - default
 volumes:
   data:
 
