@@ -1,5 +1,7 @@
 <?php
 
-namespace Auth\Exceptions;
+namespace Database\Exceptions;
 
-class DatabaseError extends \Exception {}
+class DatabaseError extends \Exception {
+    
+}

@@ -1,16 +1,16 @@
 <?php
 
-    namespace Models;
-    use Exception;
-    use mysqli;
-    use mysqli_stmt;
 
+namespace Models;
+use Database\Exceptions\DatabaseError;
+use mysqli;
+use mysqli_stmt;
     class Database
     {
         protected $connection = null;
 
         /**
-         * @throws Exception
+         * @throws DatabaseError
          */
         public function __construct()
         {
@@ -18,10 +18,10 @@
                 $this->connection = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE_NAME);
 
                 if (mysqli_connect_errno()) {
-                    throw new Exception("Could not connect to database.");
+                    throw new DatabaseError("Could not connect to database.");
                 }
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
 
@@ -29,7 +29,7 @@
          * Selects rows from the database
          *
          *
-         * @throws Exception
+         * @throws DatabaseError
          */
         public function select($query = "", $params = []): array
         {
@@ -39,8 +39,8 @@
                 $stmt->close();
 
                 return $result;
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
 
@@ -50,7 +50,7 @@
          * @param string $query
          * @param array $params
          * @return int
-         * @throws Exception
+         * @throws DatabaseError
          */
         public function insert(string $query = "", array $params = []): int
         {
@@ -60,8 +60,8 @@
                 $stmt->close();
 
                 return $result;
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
 
@@ -71,7 +71,7 @@
          * @param string $query
          * @param array $params
          * @return int
-         * @throws Exception
+         * @throws DatabaseError
          */
         public function update(string $query = "", array $params = []): int
         {
@@ -81,8 +81,8 @@
                 $stmt->close();
 
                 return $result;
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
 
@@ -92,7 +92,7 @@
          * @param string $query
          * @param array $params
          * @return int
-         * @throws Exception
+         * @throws DatabaseError
          */
         public function delete(string $query = "", array $params = []): int
         {
@@ -102,13 +102,13 @@
                 $stmt->close();
 
                 return $result;
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
 
         /**
-         * @throws Exception
+         * @throws DatabaseError
          */
         protected function executeStatement($query = "", $params = []): mysqli_stmt
         {
@@ -116,7 +116,7 @@
                 $stmt = $this->connection->prepare($query);
 
                 if ($stmt === false) {
-                    throw new Exception("Unable to do prepared statement: " . $query);
+                    throw new DatabaseError("Unable to do prepared statement: " . $query);
                 }
 
                 if ($params) {
@@ -126,8 +126,8 @@
                 $stmt->execute();
 
                 return $stmt;
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+            } catch (DatabaseError $e) {
+                throw new DatabaseError($e->getMessage());
             }
         }
     }

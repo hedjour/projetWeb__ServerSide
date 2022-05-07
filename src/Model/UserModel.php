@@ -2,8 +2,9 @@
 
     namespace Models;
     require_once PROJECT_ROOT_PATH . 'Model/Database.php';
-    use Auth\Exceptions\DatabaseError;
-    use Exception;
+//     use Auth\Exceptions\DatabaseError;
+// use Auth\Exceptions\NoUsersException;
+use Exception;
 
     class UserModel extends Database
     {
@@ -17,14 +18,13 @@
 
         const USER_TABLE = "users";
         const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
-        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
+        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, last_login, is_active, profile_picture";
 
         /**
          * @throws Exception
          */
         public function getUsers(int $limit): array
         {
-            try {
                 return $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
                                         FROM 
@@ -34,11 +34,6 @@
                                         LIMIT 
                                             ?",
                     ["i", $limit]);
-
-            } catch (Exception $e) {
-                throw new DatabaseError($e->getMessage());
-            }
-
         }
 
         /**

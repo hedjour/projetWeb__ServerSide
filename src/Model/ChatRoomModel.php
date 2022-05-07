@@ -36,14 +36,14 @@
         public function getUsers(int $chatRoomId): array
         {
             return $this->select("SELECT user.id,
-                                               user.username,
-                                               user.firstname,
-                                               user.email,
-                                               user.surname,
-                                               user.date_joined,
-                                               user.last_login,
-                                               user.is_active,
-                                               user.profile_picture
+                                            user.username,
+                                            user.firstname,
+                                            user.email,
+                                            user.surname,
+                                            user.date_joined,
+                                            user.last_login,
+                                            user.is_active,
+                                            user.profile_picture
                                         FROM user
                                         INNER JOIN chat_room_user
                                         ON user.id = chat_room_user.user_id
