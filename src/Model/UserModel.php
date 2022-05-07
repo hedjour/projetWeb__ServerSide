@@ -8,6 +8,11 @@ use Exception;
 
     class UserModel extends Database
     {
+        const USER_TABLE = "users";
+        const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
+        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, last_login, is_active, profile_picture";
+
+
         /**
          * Get all users
          *
@@ -15,10 +20,6 @@ use Exception;
          * @return array
          * @throws Exception
          */
-
-        const USER_TABLE = "users";
-        const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
-        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, last_login, is_active, profile_picture";
 
         /**
          * @throws Exception
