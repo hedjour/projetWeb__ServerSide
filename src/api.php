@@ -3,6 +3,7 @@
 
     use Controllers\ChatRoomController;
     use Controllers\UserController;
+    use Controllers\MessageController;
 
     require __DIR__ . "/inc/bootstrap.php";
 
@@ -29,6 +30,10 @@
             case 'chatroom':
                 $chatRoomController = new ChatRoomController();
                 $chatRoomController->{$uri[3] . 'Action'}();
+                break;
+            case 'message':
+                $messageController = new MessageController();
+                $messageController->{$uri[3] . 'Action'}();
                 break;
             default:
                 header("HTTP/1.1 404 Not Found");

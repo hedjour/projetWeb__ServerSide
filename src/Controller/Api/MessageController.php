@@ -3,9 +3,9 @@
     namespace Controllers;
 
     use Exception;
-    use Models\ChatRoomModel;
+    use Models\MessageModel;
 
-    class ChatRoomController extends BaseController
+    class MessageController extends BaseController
     {
         public function listAction()
         {
@@ -17,15 +17,15 @@
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
-                    $chatRoomModel = new ChatRoomModel();
+                    $messageModel = new MessageModel();
 
                     $intLimit = 10;
                     if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                         $intLimit = $arrQueryStringParams['limit'];
                     }
 
-                    $arrChatRoom = $chatRoomModel->getChatRooms($intLimit);
-                    $responseData = json_encode($arrChatRoom);
+                    $arrMessage = $messageModel->getMessages($intLimit);
+                    $responseData = json_encode($arrMessage);
                 } catch (Exception $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
@@ -59,15 +59,15 @@
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
-                    $chatRoomModel = new ChatRoomModel();
+                    $messageModel = new MessageModel();
 
-                    $chatRoomId = 10;
+                    $messageId = 10;        // ???? TODO change this
                     if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
-                        $chatRoomId = $arrQueryStringParams['id'];
+                        $messageId = $arrQueryStringParams['id'];
                     }
 
-                    $arrChatRoom = $chatRoomModel->getChatRoomById($chatRoomId);
-                    $responseData = json_encode($arrChatRoom);
+                    $arrMessage = $messageModel->getMessageById($messageId);
+                    $responseData = json_encode($arrMessage);
                 } catch (Exception $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
@@ -106,19 +106,19 @@
 
             if (strtoupper($requestMethod) == 'GET') {
                 try {
-                    $chatRoomModel = new ChatRoomModel();
+                    $messageModel = new MessageModel();
 
-                    $chatRoomId = null;
+                    $messageId = null;
                     $limit = 10;
                     if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
                         if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                             $limit = $arrQueryStringParams['limit'];
                         }
-                        $chatRoomId = $arrQueryStringParams['id'];
+                        $messageId = $arrQueryStringParams['id'];
                     }
 
-                    $arrChatRoom = $chatRoomModel->getMessages($chatRoomId, $limit);
-                    $responseData = json_encode($arrChatRoom);
+                    $arrMessage = $messageModel->getMessages($messageId, $limit);
+                    $responseData = json_encode($arrMessage);
                 } catch (Exception $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';

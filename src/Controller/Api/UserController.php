@@ -24,11 +24,11 @@
             if (strtoupper($requestMethod) == 'GET') {
                 try {
                     $userModel = new UserModel();
-
-                    $intLimit = 10;
-                    if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
-                        $intLimit = $arrQueryStringParams['limit'];
-                    }
+                    (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) ? $intLimit=$arrQueryStringParams['limit'] : $intLimit=10;
+                    // $intLimit = 10;
+                    // if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
+                    //     $intLimit = $arrQueryStringParams['limit'];
+                    // }
 
                     $arrUsers = $userModel->getUsers($intLimit);
                     $responseData = json_encode($arrUsers);
@@ -510,4 +510,3 @@
         }
 
     }
-    

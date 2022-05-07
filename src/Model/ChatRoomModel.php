@@ -77,7 +77,7 @@
          * @return array The chat room
          * @throws Exception If the chat room does not exist
          */
-        public function getChatRoom(int $chatRoomId): array
+        public function getChatRoomById(int $chatRoomId): array
         {
             return $this->select("SELECT * 
                                         FROM chat_room
