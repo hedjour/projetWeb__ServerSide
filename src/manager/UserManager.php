@@ -4,6 +4,7 @@
 
     use Auth\Exceptions\InvalidEmailException;
     use Auth\Exceptions\InvalidPasswordException;
+    use Auth\Exceptions\NotAuthorizedException;
     use Auth\Exceptions\NotLoggedInException;
     use Auth\Exceptions\UserAlreadyExistException;
     use Auth\Exceptions\UserDoesNotExistException;
@@ -86,15 +87,16 @@
          * @param string $password
          * @throws UserDoesNotExistException
          * @throws WrongCredentialsException
+         * @throws Exception
          */
         public function login(string $username, string $password)
         {
             $userData = $this->userModel->getUserByUsernameAndPassword($username);
-            if (!\password_verify($password, $userData[0]['password'])) {
+            if (!\password_verify($password, $userData['password'])) {
                 throw new WrongCredentialsException();
             }
 
-            $this->onLoginSuccessful($userData[0]['id']);
+            $this->onLoginSuccessful($userData['id']);
         }
 
         /**
@@ -125,6 +127,7 @@
          * @throws NotLoggedInException
          * @throws UserAlreadyExistException
          * @throws UserDoesNotExistException
+         * @throws NotAuthorizedException
          */
         public function updateUser(...$args)
         {
@@ -151,7 +154,7 @@
             if ($this->isLoggedIn()) {
                 return $_SESSION[self::SESSION_FIELD_USER_ID];
             } else {
-                throw new NotLoggedInException();
+                throw new NotLoggedInException("User is not logged in");
             }
         }
     }
