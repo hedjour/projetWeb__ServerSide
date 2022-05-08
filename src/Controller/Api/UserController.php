@@ -24,7 +24,7 @@
             if (strtoupper($requestMethod) == 'GET') {
                 try {
                     $userModel = new UserModel();
-                    (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) ? $intLimit=$arrQueryStringParams['limit'] : $intLimit=10;
+                    (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) ? $intLimit = $arrQueryStringParams['limit'] : $intLimit = 10;
                     // $intLimit = 10;
                     // if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                     //     $intLimit = $arrQueryStringParams['limit'];
@@ -33,8 +33,8 @@
                     $arrUsers = $userModel->getUsers($intLimit);
                     $responseData = json_encode($arrUsers);
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -70,13 +70,8 @@
                     if (isset($queryStringParams['id']) and $queryStringParams['id'] !== '') {
                         $userId = $queryStringParams['id'];
                         $arrUsers = $userModel->getUserById($userId);
-                        if (!($arrUsers and count($arrUsers) != 0)) {
-                            $strErrorDesc = 'User not found';
-                            $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        } else {
+                        $responseData = json_encode($arrUsers);
 
-                            $responseData = json_encode($arrUsers[0]);
-                        }
 
                     } else {
                         $strErrorDesc = 'Arguments missing or invalid';
@@ -85,8 +80,8 @@
 
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -121,14 +116,8 @@
 
                     if (isset($arrQueryStringParams['username']) && $arrQueryStringParams['username']) {
                         $userUsername = $arrQueryStringParams['username'];
-                        $arrUsers = $userModel->getUserByUsername($userUsername);
-                        if (!($arrUsers and count($arrUsers) != 0)) {
-                            $strErrorDesc = 'User not found';
-                            $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        } else {
-
-                            $responseData = json_encode($arrUsers[0]);
-                        }
+                        $user = $userModel->getUserByUsername($userUsername);
+                        $responseData = json_encode($user);
 
                     } else {
                         $strErrorDesc = 'Arguments missing or invalid';
@@ -137,8 +126,8 @@
 
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -173,14 +162,8 @@
 
                     if (isset($arrQueryStringParams['email']) && $arrQueryStringParams['email']) {
                         $userEmail = $arrQueryStringParams['email'];
-                        $arrUsers = $userModel->getUserByEmail($userEmail);
-                        if (!($arrUsers and count($arrUsers) != 0)) {
-                            $strErrorDesc = 'User not found';
-                            $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        } else {
-
-                            $responseData = json_encode($arrUsers[0]);
-                        }
+                        $user = $userModel->getUserByEmail($userEmail);
+                        $responseData = json_encode($user);
 
                     } else {
                         $strErrorDesc = 'Arguments missing or invalid';
@@ -188,8 +171,8 @@
                     }
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -225,22 +208,15 @@
                     if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
                         $userId = $arrQueryStringParams['id'];
                         $arrMessages = $userModel->getMessages($userId);
-                        if (!($arrMessages and count($arrMessages) != 0)) {
-                            $strErrorDesc = 'User not found';
-                            $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        } else {
-
-                            $responseData = json_encode($arrMessages);
-                        }
-
+                        $responseData = json_encode($arrMessages);
                     } else {
                         $strErrorDesc = 'Arguments missing or invalid';
                         $strErrorHeader = 'HTTP/1.1 418 Bad Request';
                     }
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -276,13 +252,7 @@
                     if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
                         $userId = $arrQueryStringParams['id'];
                         $arrChatRooms = $userModel->getChatRooms($userId);
-                        if (!($arrChatRooms and count($arrChatRooms) != 0)) {
-                            $strErrorDesc = 'User not found';
-                            $strErrorHeader = 'HTTP/1.1 404 Not Found';
-                        } else {
-
-                            $responseData = json_encode($arrChatRooms);
-                        }
+                        $responseData = json_encode($arrChatRooms);
 
                     } else {
                         $strErrorDesc = 'Arguments missing or invalid';
@@ -290,9 +260,8 @@
                     }
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-
+                    self::treatBasicExceptions($e);
+                    return;
                 }
             } else {
                 $strErrorDesc = 'Method not supported';
@@ -321,23 +290,18 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getGETData();
+            $arrQueryStringParams = $this->getPOSTData();
 
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
-                    try {
-                        $userManager->createUser($arrQueryStringParams['name'], $arrQueryStringParams['password']);
+                        $userManager->createUser($arrQueryStringParams['username'], $arrQueryStringParams['password']);
                         $responseData = json_encode(array('success' => 'User created'));
 
-                    } catch (Exception $e) {
-                        $strErrorDesc = 'Arguments missing or invalid' . $e->getMessage();
-                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
-                    }
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {

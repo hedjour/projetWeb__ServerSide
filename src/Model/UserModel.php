@@ -8,7 +8,7 @@
     use Auth\Exceptions\NotLoggedInException;
     use Auth\Exceptions\UserAlreadyExistException;
     use Auth\Exceptions\UserDoesNotExistException;
-    use Cassandra\Exception\UnauthorizedException;
+    use Auth\Exceptions\NotAuthorizedException;
     use Database\Exceptions\DatabaseError;
     use Exception;
     use Managers\UserManager;
@@ -50,15 +50,20 @@
         public function getUserById(int $id): array
         {
             try {
-                return $this->select("SELECT 
+                $data = $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
                                             id = ?",
                     ["i", $id]);
+                if ($data) {
+                    return $data[0];
+                } else {
+                    throw new UserDoesNotExistException();
+                }
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User with ID " . $id . " does not exist");
+                throw new UserDoesNotExistException();
             }
         }
 
@@ -70,15 +75,20 @@
         public function getUserByUsername(string $username): array
         {
             try {
-                return $this->select("SELECT 
+                $data = $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
                                             username = ?",
                     ["s", $username]);
+                if ($data) {
+                    return $data[0];
+                } else {
+                    throw new UserDoesNotExistException();
+                }
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User with username $username does not exist");
+                throw new UserDoesNotExistException();
             }
 
         }
@@ -92,16 +102,20 @@
          */
         public function getUserByEmail(string $userEmail): array
         {
-            try {
-                return $this->select("SELECT 
+            try {$data = $this->select("SELECT 
                                             " . $this::USER_FIELDS_SAFE . "
                                         FROM 
                                             user 
                                         WHERE 
                                             email = ?",
                     ["s", $userEmail]);
+                if ($data) {
+                    return $data[0];
+                } else {
+                    throw new UserDoesNotExistException();
+                }
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User with email " . $userEmail . " does not exist");
+                throw new UserDoesNotExistException();
             }
 
         }
@@ -116,15 +130,20 @@
         {
             try {
 
-                return $this->select("SELECT 
+                $data = $this->select("SELECT 
                                             " . $this::USER_FIELDS . "
                                         FROM 
                                             user 
                                         WHERE 
                                             username = ?",
                     ["s", $username]);
+                if ($data) {
+                    return $data[0];
+                } else {
+                    throw new UserDoesNotExistException();
+                }
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User with username " . $username . " does not exist");
+                throw new UserDoesNotExistException();
             }
         }
 
@@ -195,7 +214,7 @@
         public function validatePassword(string $password): bool
         {
             // check if the password is valid
-            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/', $password)) {
+            if (!preg_match('/^[0-A]{0,100}/', $password)) {
                 // cancel the operation and report the violation of this requirement
                 throw new InvalidPasswordException("The password $password is not valid");
             }
@@ -223,7 +242,9 @@
         {
             // check if the user already exists
             $this->verifyUsername($username);
-            $this->verifyEmail($email);
+            if ($email) {
+                $this->verifyEmail($email);
+            }
             // validate the password
             $this->validatePassword($password);
             // create the user
@@ -250,6 +271,7 @@
          * @throws NotLoggedInException If the user is not logged in
          * @throws UserAlreadyExistException If the username is already in use
          * @throws UserDoesNotExistException If the user does not exist
+         * @throws NotAuthorizedException If the user is not authorized to update the user
          */
         public function updateUser(int    $userId,
                                    string $username = null,
@@ -260,9 +282,7 @@
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != $userId) {
-                throw new UnauthorizedException("You are not allowed to modify this user",
-                    403,
-                    "Unauthorized");
+                throw new NotAuthorizedException();
             }
             $fields = "";
             $params = [""];
@@ -298,7 +318,7 @@
             try {
                 return $this->update("UPDATE user SET " . $fields . " WHERE id = ?", $params);
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User with ID " . $userId . " does not exist");
+                throw new UserDoesNotExistException();
             }
         }
 
@@ -310,20 +330,19 @@
          * @throws NotLoggedInException If the user is not logged in
          * @throws InvalidPasswordException If the password is not valid
          * @throws UserDoesNotExistException If the user does not exist
+         * @throws NotAuthorizedException If the user is not authorized to update the user
          */
         public function updatePassword(int $userId, string $password): void
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != $userId) {
-                throw new UnauthorizedException("You are not allowed to modify this user",
-                    403,
-                    "Unauthorized");
+                throw new NotAuthorizedException();
             }
             if ($this->validatePassword($password)) {
                 try {
                     $this->update("UPDATE user SET password = ? WHERE id = ?", ["ss", $password, $userId]);
                 } catch (DatabaseError $e) {
-                    throw new UserDoesNotExistException("User with ID " . $userId . " does not exist");
+                    throw new UserDoesNotExistException();
                 }
             }
         }
@@ -335,21 +354,20 @@
          * @param int $userId The id of the user to delete
          * @return int the id of the deleted user
          * @throws UserDoesNotExistException If the user doesn't exist
-         * @throws NotLoggedInException if the user is not logged in
+         * @throws NotAuthorizedException If the user is not authorized to delete the user
+         * @throws NotLoggedInException If the user is not logged in
          *
          */
         public function deleteUser(int $userId): int
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != $userId) {
-                throw new UnauthorizedException("You are not allowed to delete this user",
-                    403,
-                    "Unauthorized");
+                throw new NotAuthorizedException();
             }
             try {
                 return $this->delete("DELETE FROM user WHERE id = ?", ["i", $userId]);
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User doesn't exist", 404, DatabaseError::$NOT_FOUND);
+                throw new UserDoesNotExistException();
             }
         }
 
@@ -362,15 +380,13 @@
          * @return array The rooms of the user
          * @throws NotLoggedInException If the user is not logged in
          * @throws UserDoesNotExistException If the user doesn't exist
-         * @throws UnauthorizedException If the user is not allowed to view the rooms
+         * @throws NotAuthorizedException If the user is not allowed to view the rooms
          */
         public function getChatRooms(int $userId): array
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != $userId) {
-                throw new UnauthorizedException("You are not allowed to see this user's rooms",
-                    403,
-                    "Unauthorized");
+                throw new NotAuthorizedException();
             }
             try {
                 return $this->select("
@@ -383,7 +399,7 @@
                                         WHERE chat_room_user.user_id = ?
                                         ORDER BY chat_room.id;", ["i", $userId]);
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User doesn't exist", 404, DatabaseError::$NOT_FOUND);
+                throw new UserDoesNotExistException();
             }
         }
 
@@ -400,9 +416,7 @@
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != $userId) {
-                throw new UnauthorizedException("You are not allowed to see this room",
-                    403,
-                    "Unauthorized");
+                throw new NotAuthorizedException();
             }
             try {
 
@@ -419,7 +433,7 @@
                                         WHERE message.chat_room_id = ?
                                         ORDER BY message.sent_date", ["i", $userId]);
             } catch (DatabaseError $e) {
-                throw new UserDoesNotExistException("User doesn't exist", 404, DatabaseError::$NOT_FOUND);
+                throw new UserDoesNotExistException();
             }
         }
     }
