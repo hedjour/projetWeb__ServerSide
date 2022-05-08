@@ -93,8 +93,8 @@
 
         /*
          * get chat room messages
-         *
-         *
+         * 
+         * 
          */
         public function getMessagesAction()
         {
