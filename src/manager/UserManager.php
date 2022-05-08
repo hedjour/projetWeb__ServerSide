@@ -106,8 +106,7 @@
             $verified = \is_callable($callback) ? 0 : 1;
 
             try {
-                $user = $this->userModel->createUser($username, $password);
-                return $user[0]['id'];
+                return $this->userModel->createUser($username, $password);
             } catch (Exception $e) {
                 echo($e->getMessage());
             }
