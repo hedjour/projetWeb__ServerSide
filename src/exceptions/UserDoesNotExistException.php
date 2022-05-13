@@ -7,8 +7,11 @@
 
     class UserDoesNotExistException extends Exception
     {
-        public function __construct()
+        public function __construct(string $message = "", int $code = 0, Exception $previous = null)
         {
-            parent::__construct('User does not exist', 404);
+            if (!$message) {
+                $message = "User does not exist.";
+            }
+            parent::__construct($message, 404);
         }
     }

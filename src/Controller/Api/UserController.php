@@ -295,8 +295,8 @@
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
-                        $userManager->createUser($arrQueryStringParams['username'], $arrQueryStringParams['password']);
-                        $responseData = json_encode(array('success' => 'User created'));
+                    $userManager->createUser($arrQueryStringParams['username'], $arrQueryStringParams['password']);
+                    $responseData = json_encode(array('success' => 'User created'));
 
 
                 } catch (Exception $e) {
@@ -332,31 +332,22 @@
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getGETData();
             $postData = $this->getPOSTData();
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
-                    try {
-                        if (isset($postData['username']) && isset($postData['password'])) {
-                            $userManager->login($postData['username'], $postData['password']);
-                            $responseData = json_encode(array('success' => 'User logged in'));
-                        } else {
-                            $strErrorDesc = 'Arguments missing or invalid';
-                            $strErrorHeader = 'HTTP/1.1 400 Bad Request';
-                        }
 
-                    } catch (WrongCredentialsException $e) {
-                        $strErrorDesc = 'Wrong credentials';
-                        $strErrorHeader = 'HTTP/1.1 401 Unauthorized';
-                    } catch (Exception $e) {
-                        $strErrorDesc = $e->getMessage() . json_encode($postData);
-                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
+                    if (isset($postData['username']) && isset($postData['password'])) {
+                        $userManager->login($postData['username'], $postData['password']);
+                        $responseData = json_encode(array('success' => 'User logged in'));
+                    } else {
+                        $strErrorDesc = 'Arguments missing or invalid';
+                        $strErrorHeader = 'HTTP/1.1 400 Bad Request';
                     }
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
+                    return;
 
                 }
             } else {
@@ -441,8 +432,8 @@
                 try {
                     $userManager = new UserManager();
                     try {
-                        #TODO
-//                        $userManager-);
+                        #TODO update user
+                        $userManager->updateUser($this->getPOSTData());
                         $responseData = json_encode(array('success' => 'User updated'));
 
                     } catch (Exception $e) {
