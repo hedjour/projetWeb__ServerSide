@@ -8,23 +8,26 @@ use Exception;
     class UserModel extends Database
     {
         /**
-         * Get all pixels
+         * Get adjacent pixels
          *
          * @param $limit int The number of pixels to get
          * @return array
          * @throws Exception
          */
-        public function getPixels(int $limit): array
+        public function getPixels(int $limit=null, int $beginning=0): array
         {
+
                 return $this->select("SELECT 
                                             *
                                         FROM 
                                             pixels 
                                         ORDER BY 
-                                            sent_date
+                                            id
+                                        WHERE 
+                                            id >= ?
                                         LIMIT 
                                             ?",
-                    ["i", $limit]);
+                    ["i", $limit, $beginning]);
         }
 
         /**
@@ -45,26 +48,9 @@ use Exception;
         }
 
         /**
-         * get all pixels which content is $content    exact match for the moment TODO change
-         * @param string $content The content of the pixel
-         * @return array The user's details
-         * @throws Exception If the pixel does not exist
-         */
-        public function getPixelByContent(string $content): array
-        {
-            return $this->select("SELECT 
-                                            *
-                                        FROM 
-                                            pixel 
-                                        WHERE 
-                                            content = ?",
-                ["s", $content]);
-        }
-
-        /**
          * get all pixels which datesent is $datesent    exact match for the moment TODO change
-         * @param string $content The content of the pixel
-         * @return array The user's details
+         * @param string $datesent The date of the pixel to match
+         * @return array The pixel's details
          * @throws Exception If the pixel does not exist
          */
         public function getPixelByDatesent(string $datesent): array
@@ -75,7 +61,24 @@ use Exception;
                                             pixel 
                                         WHERE 
                                             datesent = ?",
-                ["s", $datesent]);
+                ["d", $datesent]);
+        }
+
+        /**
+         * get all pixels which datesent is over $date
+         * @param string $date The date to compare
+         * @return array The pixel's details
+         * @throws Exception If the pixel does not exist
+         */
+        public function getPixelSentAfterDate(string $date): array
+        {
+            return $this->select("SELECT 
+                                            *
+                                        FROM 
+                                            pixel 
+                                        WHERE 
+                                            datesent >= ?",
+                ["d", $date]);
         }
 
         /**
@@ -86,11 +89,11 @@ use Exception;
          * @return int the id of the updated pixel
          * @throws Exception If the pixel doesn't exist
          */
-        public function modifyPixel(int    $msgId, string $content = ""): int
+        public function modifyPixel(int $msgId, string $content = ""): int
         {
-            return $this->update("UPDATE pixel SET content = ? WHERE id = ?",
-                ["ssssssi", $content, $msgId]);
-        }       // TODO apoorva check ^
+            return $this->update("UPDATE pixel SET color = ? WHERE id = ?",
+                ["ii", $content, $msgId]);
+        }
 
         /**
          * delete a pixel
