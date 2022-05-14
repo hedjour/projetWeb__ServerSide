@@ -3,7 +3,9 @@
     namespace Models;
     require_once PROJECT_ROOT_PATH . 'Model/Database.php';
 
-use Exception;
+    use Cassandra\Date;
+    use Database\Exceptions\DatabaseError;
+    use Exception;
 
     class MessageModel extends Database
     {
@@ -19,7 +21,7 @@ use Exception;
                 return $this->select("SELECT 
                                             *
                                         FROM 
-                                            messages 
+                                            message 
                                         ORDER BY 
                                             sent_date
                                         LIMIT 
@@ -62,20 +64,20 @@ use Exception;
         }
 
         /**
-         * get all messages which datesent is $datesent    exact match for the moment TODO change
-         * @param string $content The content of the message
-         * @return array The user's details
-         * @throws Exception If the message does not exist
+         * get all messages which dates is $datesent    exact match for the moment TODO change
+         * @param Date $dateSent
+         * @return array
+         * @throws DatabaseError
          */
-        public function getMessageByDatesent(string $datesent): array
+        public function getMessageByDateSent(date $dateSent): array
         {
             return $this->select("SELECT 
                                             *
                                         FROM 
                                             message 
                                         WHERE 
-                                            datesent = ?",
-                ["s", $datesent]);
+                                            sent_date = ?",
+                ["s", $dateSent]);
         }
 
         /**
@@ -89,8 +91,8 @@ use Exception;
         public function modifyMessage(int    $msgId, string $content = ""): int
         {
             return $this->update("UPDATE message SET content = ? WHERE id = ?",
-                ["ssssssi", $content, $msgId]);
-        }       // TODO apoorva check ^
+                ["si", $content, $msgId]);
+        }
 
         /**
          * delete a message

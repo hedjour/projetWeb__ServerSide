@@ -1,9 +1,13 @@
 <?php
 
     namespace Managers;
+
     use Auth\Exceptions\InvalidEmailException;
     use Auth\Exceptions\InvalidPasswordException;
+    use Auth\Exceptions\NotAuthorizedException;
     use Auth\Exceptions\NotLoggedInException;
+    use Auth\Exceptions\UserAlreadyExistException;
+    use Auth\Exceptions\UserDoesNotExistException;
     use Auth\Exceptions\WrongCredentialsException;
     use Exception;
     use Models\UserModel;
@@ -34,85 +38,24 @@
             $this->userModel = new UserModel();
         }
 
-        /**
-         * @throws  InvalidEmailException
-         */
-        protected static function validateEmailAddress($email): string
-        {
-            if (empty($email)) {
-                throw new  InvalidEmailException();
-            }
-
-            $email = \trim($email);
-
-            if (!\filter_var($email, \FILTER_VALIDATE_EMAIL)) {
-                throw new InvalidEmailException();
-            }
-
-            return $email;
-        }
 
         /**
-         * Validates a password
-         *
-         * @param string $password the password to validate
-         * @return string the sanitized password
-         * @throws InvalidPasswordException if the password has been invalid
-         */
-        protected static function validatePassword(string $password): string
-        {
-            if (empty($password)) {
-                throw new InvalidPasswordException();
-            }
-
-            $password = \trim($password);
-
-            if (\strlen($password) < 1) {
-                throw new InvalidPasswordException();
-            }
-
-            return $password;
-        }
-
-        /**
+         * Create a new user
+         * @param string $username The display name of the user
+         * @param string $password The password of the user
+         * @param string|null $email The email address of the user
+         * @param callable|null $callback
+         * @return int
          * @throws InvalidEmailException
          * @throws InvalidPasswordException
-         * @throws Exception
+         * @throws UserAlreadyExistException
          */
-        public function createUser($username, $password, $email = null, callable $callback = null): int
+        public function createUser(string $username, string $password, string $email = null, callable $callback = null): int
         {
             \ignore_user_abort(true);
-
-            if ($email) $email = self::validateEmailAddress($email);
-            else $email = '';
-            $password = self::validatePassword($password);
-
-            $username = isset($username) ? \trim($username) : null;
-
-            // if a username has actually been provided
-            if ($username !== null) {
-                // count the number of users who do already have that specified username
-                $occurrencesOfUsername = $this->userModel->select(
-                    'SELECT * FROM user WHERE username = ?',
-                    ["s", $username]);
-                // if any user with that username does already exist
-                if (count($occurrencesOfUsername) > 0) {
-                    // cancel the operation and report the violation of this requirement
-                    throw new Exception("Username already taken");
-                }
-            }
-
-            $password = \password_hash($password, \PASSWORD_BCRYPT);
             $verified = \is_callable($callback) ? 0 : 1;
 
-            try {
-                return $this->userModel->createUser($username, $password);
-            } catch (Exception $e) {
-                echo($e->getMessage());
-            }
-
-
-            return -1;
+            return $this->userModel->createUser($username, $password);
         }
 
         /**
@@ -126,7 +69,6 @@
         {
             session_unset();
 
-            $userData = $this->userModel->getUserById($userId);
             $userData = $this->userModel->getUserById($userId);
             // save the user data in the session variables maintained by this library
             $_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
@@ -143,16 +85,18 @@
          *
          * @param string $username
          * @param string $password
+         * @throws UserDoesNotExistException
+         * @throws WrongCredentialsException
          * @throws Exception
          */
         public function login(string $username, string $password)
         {
             $userData = $this->userModel->getUserByUsernameAndPassword($username);
-            if (!\password_verify($password, $userData[0]['password'])) {
+            if (!\password_verify($password, $userData['password'])) {
                 throw new WrongCredentialsException();
             }
 
-            $this->onLoginSuccessful($userData[0]['id']);
+            $this->onLoginSuccessful($userData['id']);
         }
 
         /**
@@ -163,14 +107,13 @@
          */
         public function logout()
         {
-            if( isset($_SESSION[self::SESSION_FIELD_LOGGED_IN]) ) {
+            if (isset($_SESSION[self::SESSION_FIELD_LOGGED_IN])) {
                 unset($_SESSION[self::SESSION_FIELD_LOGGED_IN]);
                 unset($_SESSION[self::SESSION_FIELD_USER_ID]);
                 unset($_SESSION[self::SESSION_FIELD_EMAIL]);
                 unset($_SESSION[self::SESSION_FIELD_USERNAME]);
                 unset($_SESSION[self::SESSION_FIELD_LAST_RESYNC]);
-            }
-            else {
+            } else {
                 throw new NotLoggedInException();
             }
 
@@ -180,15 +123,38 @@
         /**
          * Updates the user's credentials
          *
+         * @throws InvalidEmailException
+         * @throws NotLoggedInException
+         * @throws UserAlreadyExistException
+         * @throws UserDoesNotExistException
+         * @throws NotAuthorizedException
+         */
+        public function updateUser(...$args)
+        {
+
+            $this->userModel->updateUser(...$args);
+        }
+
+        /**
+         * Check if the user is logged in
+         *
+         */
+        public function isLoggedIn(): bool
+        {
+            return isset($_SESSION[self::SESSION_FIELD_LOGGED_IN]);
+        }
+
+        /**
+         * Get the logged-in user's ID
+         * @return int
          * @throws NotLoggedInException
          */
-        public function updateUser(string $username, string $email, string $password)
+        public function getLoggedInUserId(): int
         {
-            $userId = $_SESSION[self::SESSION_FIELD_USER_ID];
-            if ($userId === null) {
-                throw new NotLoggedInException();
+            if ($this->isLoggedIn()) {
+                return $_SESSION[self::SESSION_FIELD_USER_ID];
+            } else {
+                throw new NotLoggedInException("User is not logged in");
             }
-
-            $this->userModel->updateUser($userId, $username, $email, $password);
         }
     }

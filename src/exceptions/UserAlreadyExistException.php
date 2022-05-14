@@ -4,6 +4,6 @@
 
     use Exception;
 
-    class UserAlreadyExistsException extends Exception
+    class UserAlreadyExistException extends Exception
     {
     }

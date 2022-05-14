@@ -5,7 +5,7 @@
 
 use Exception;
 
-    class UserModel extends Database
+    class PixelModel extends Database
     {
         /**
          * Get adjacent pixels

@@ -66,4 +66,21 @@
 
             exit;
         }
+
+        protected function treatBasicExceptions(\Exception $e): void
+        {
+            if ($e->getMessage()) {
+                $strErrorDesc = $e->getMessage();
+            } else {
+                $strErrorDesc = 'Something went wrong! Please contact support.';
+            }
+            if ($e->getCode()) {
+                $strErrorHeader = 'HTTP/1.1 ' . $e->getCode() . $e->getPrevious() . 'Error';
+            } else {
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+            $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
     }
