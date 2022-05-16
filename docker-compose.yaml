@@ -1,7 +1,9 @@
 version: '3'
 services:
-  debug:
-    image: phpstorm/php-71-apache-xdebug
+  php8:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     volumes:
@@ -42,20 +44,20 @@ services:
       - data:/var/lib/mysql
 
 
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    links:
-#      - db
-#    environment:
-#      PMA_HOST: db
-#      PMA_PORT: 3306
-#      PMA_ARBITRARY: 1
-#    restart: always
-#    ports:
-#      - "8082:80"
-#    networks:
-#      # Connects to the network named 'default'
-#      - default
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8082:80"
+    networks:
+      # Connects to the network named 'default'
+      - default
 volumes:
   data:
 
