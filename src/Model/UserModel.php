@@ -16,8 +16,8 @@
     class UserModel extends Database
     {
         const USER_TABLE = "users";
-        const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
-        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, last_login, is_active, profile_picture";
+        const USER_FIELDS = "id, username,first_name, email, surname, date_joined, password, last_login, is_active, profile_picture";
+        const USER_FIELDS_SAFE = "id, username,first_name, email, surname, date_joined, last_login, is_active, profile_picture";
 
 
         /**
@@ -220,7 +220,7 @@
          *
          *
          * @param string $username The username of the user to create
-         * @param string $password The password of the user to create
+         * @param string $password The password of the user to cr   eate
          * @param string|null $firstname The firstname of the user to create
          * @param string|null $surname The surname of the user to create
          * @param string|null $email The email of the user to create
@@ -242,7 +242,7 @@
             // validate the password
             $this->validatePassword($password);
             // create the user
-            return $this->insert("INSERT INTO user (username, password, firstname, surname, email, profile_picture) 
+            return $this->insert("INSERT INTO user (username, password, first_name, surname, email, profile_picture) 
                                 VALUES (?, ?, ?, ?, ?, ?)",
                 ["ssssss", $username, \password_hash($password, \PASSWORD_BCRYPT), $firstname, $surname, $email, $profilePicture]);
 
@@ -285,7 +285,7 @@
 
             }
             if ($firstname !== null) {
-                $fields .= "firstname = ?,";
+                $fields .= "first_name = ?,";
                 $params[] = $firstname;
                 $params[0] = $params[0] . "s";
             }
@@ -435,6 +435,38 @@
             if ($data == null) {
                 throw new UserDoesNotExistException("User with id $userId does not exist");
             }
+            return $data;
+        }
+
+        /**
+         * search of the username, firstname, email and surname of the user
+         *
+         * @param string $search
+         * @param int $limit
+         * @return array
+         * @throws DatabaseError
+         */
+        public function searchUser(string $search,int $limit=10): array{
+            $data = $this->select("
+                                        SELECT 
+                                            user.id,
+                                            user.username,
+                                            user.first_name,
+                                            user.surname,
+                                            user.email,
+                                            user.profile_picture
+                                        FROM user
+                                        WHERE user.username LIKE ?
+                                        OR user.first_name LIKE ?
+                                        OR user.surname LIKE ?
+                                        OR user.email LIKE ?
+                                        ORDER BY user.id
+                                        LIMIT ?", ["ssssi", "%".$search."%", "%".$search."%", "%".$search."%", "%".$search."%",$limit]);
+
+            if ($data == null) {
+                return [];
+            }
+
             return $data;
         }
 

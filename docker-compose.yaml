@@ -1,28 +1,5 @@
 version: '3'
 services:
-  #  debug:
-  #    image: phpstorm/php-71-apache-xdebug
-  #    ports:
-  #      - "80:80"
-  #    volumes:
-  #      - ./src:/var/www/html
-  #    depends_on:
-  #      - db
-  #    links:
-  #      - db
-  #    environment:
-  #      #For Windows and macOS, replace the line below with `host.docker.internal`, which will automatically resolve to the internal address of the host Docker is running on.
-  #      #For Linux, replace the line below with your hostname, which you can obtain by executing `hostname` in Terminal.
-  #      XDEBUG_CONFIG: remote_host=host.docker.internal
-  #
-  #      #For macOS, if you use a local Homebrew php-fpm installation, port `9000` (which is the default debugging port) may become occupied. PhpStorm will remain silent on starting listening for incoming connections. If this is the case, in the Settings | Languages & Frameworks | PHP | Debug, set the Debug port to 9001, and use the following configuration line instead.
-  #
-  #      #XDEBUG_CONFIG: remote_host=host.docker.internal, remote_port=9001
-  #
-  #      DB_HOST: db
-  #      DB_USERNAME: db_user
-  #      DB_PASSWORD: db_user_pass
-  #      DB_DATABASE_NAME: app_db
   php8:
     build:
       context: .
@@ -67,20 +44,20 @@ services:
       - data:/var/lib/mysql
 
 
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    links:
-#      - db
-#    environment:
-#      PMA_HOST: db
-#      PMA_PORT: 3306
-#      PMA_ARBITRARY: 1
-#    restart: always
-#    ports:
-#      - "8082:80"
-#    networks:
-#      # Connects to the network named 'default'
-#      - default
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8082:80"
+    networks:
+      # Connects to the network named 'default'
+      - default
 volumes:
   data:
 

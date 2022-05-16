@@ -105,7 +105,7 @@
          *
          * @throws NotLoggedInException
          */
-        public function logout()
+        public function logout(): void
         {
             if (isset($_SESSION[self::SESSION_FIELD_LOGGED_IN])) {
                 unset($_SESSION[self::SESSION_FIELD_LOGGED_IN]);

@@ -18,41 +18,23 @@
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
-            $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getGETData();
-
-            if (strtoupper($requestMethod) == 'GET') {
-                try {
-                    $userModel = new UserModel();
-                    (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) ? $intLimit = $arrQueryStringParams['limit'] : $intLimit = 10;
-                    // $intLimit = 10;
-                    // if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
-                    //     $intLimit = $arrQueryStringParams['limit'];
-                    // }
-
-                    $arrUsers = $userModel->getUsers($intLimit);
-                    $responseData = json_encode($arrUsers);
-                } catch (Exception $e) {
-                    self::treatBasicExceptions($e);
-                    return;
-
+            try {
+                $this->isRequestMethodOrThrow('GET');
+                $userModel = new UserModel();
+                $intLimit = 10;
+                list($queryArgs, $queryErrors) = self::getRequiredGetArgs(array('limit'), array('number'));
+                if (count($queryErrors) == 0) {
+                    $intLimit = $queryArgs['limit'];
                 }
-            } else {
-                $strErrorDesc = 'Method not supported';
-                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
-            }
 
-            // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
+                $arrUsers = $userModel->getUsers($intLimit);
+                $responseData = json_encode($arrUsers);
+            } catch (Exception $e) {
+                self::treatBasicExceptions($e);
+
             }
+            // send output
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         public function getAction()
@@ -60,46 +42,21 @@
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
-            $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $queryStringParams = $this->getGETData();
 
-            if (strtoupper($requestMethod) == 'GET') {
-                try {
-                    $userModel = new UserModel();
+            try {
+                $this->isRequestMethodOrThrow('GET');
+                $userModel = new UserModel();
+                $queryArgs = $this->getRequiredGetArgsOrThrow(array('id'), array('number'));
+                $userId = $queryArgs['id'];
+                $arrUsers = $userModel->getUserById($userId);
+                $responseData = json_encode($arrUsers);
+            } catch (Exception $e) {
+                self::treatBasicExceptions($e);
 
-                    if (isset($queryStringParams['id']) and $queryStringParams['id'] !== '') {
-                        $userId = $queryStringParams['id'];
-                        $arrUsers = $userModel->getUserById($userId);
-                        $responseData = json_encode($arrUsers);
-
-
-                    } else {
-                        $strErrorDesc = 'Arguments missing or invalid';
-                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
-                    }
-
-
-                } catch (Exception $e) {
-                    self::treatBasicExceptions($e);
-                    return;
-
-                }
-            } else {
-                $strErrorDesc = 'Method not supported';
-                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         public function getByUsernameAction()
@@ -107,46 +64,41 @@
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
-            $requestMethod = $_SERVER["REQUEST_METHOD"];
-            $arrQueryStringParams = $this->getGETData();
+            try {
 
-            if (strtoupper($requestMethod) == 'GET') {
-                try {
-                    $userModel = new UserModel();
-
-                    if (isset($arrQueryStringParams['username']) && $arrQueryStringParams['username']) {
-                        $userUsername = $arrQueryStringParams['username'];
-                        $user = $userModel->getUserByUsername($userUsername);
-                        $responseData = json_encode($user);
-
-                    } else {
-                        $strErrorDesc = 'Arguments missing or invalid';
-                        $strErrorHeader = 'HTTP/1.1 418 Bad Request';
-                    }
+                $this->isRequestMethodOrThrow('GET');
+                $userModel = new UserModel();
+                $queryArgs = $this->getRequiredGetArgsOrThrow(array('username'), array('string'));
+                $userUsername = $queryArgs['username'];
+                $user = $userModel->getUserByUsername($userUsername);
+                $responseData = json_encode($user);
 
 
-                } catch (Exception $e) {
-                    self::treatBasicExceptions($e);
-                    return;
-
-                }
-            } else {
-                $strErrorDesc = 'Method not supported';
-                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            } catch (Exception $e) {
+                self::treatBasicExceptions($e);
             }
-
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
+
+        public  function searchAction(){
+            $strErrorDesc = '';
+            $responseData = array();
+            $strErrorHeader = '';
+            try {
+                $this->isRequestMethodOrThrow('GET');
+                $userModel = new UserModel();
+                $queryArgs = $this->getRequiredGetArgsOrThrow(array('search'), array('string'));
+                $search = $queryArgs['search'];
+                $users = $userModel->searchUser($search);
+                $responseData = json_encode($users);
+            } catch (Exception $e) {
+                self::treatBasicExceptions($e);
+            }
+            // send output
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
+        }
+
 
         public function getByEmailAction()
         {
@@ -172,7 +124,6 @@
 
                 } catch (Exception $e) {
                     self::treatBasicExceptions($e);
-                    return;
 
                 }
             } else {
@@ -181,16 +132,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         public function getMessagesAction()
@@ -216,7 +158,6 @@
 
                 } catch (Exception $e) {
                     self::treatBasicExceptions($e);
-                    return;
 
                 }
             } else {
@@ -225,16 +166,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         public function getChatRoomsAction()
@@ -261,7 +193,6 @@
 
                 } catch (Exception $e) {
                     self::treatBasicExceptions($e);
-                    return;
                 }
             } else {
                 $strErrorDesc = 'Method not supported';
@@ -269,16 +200,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         /**
@@ -301,7 +223,6 @@
 
                 } catch (Exception $e) {
                     self::treatBasicExceptions($e);
-                    return;
 
                 }
             } else {
@@ -310,16 +231,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         /**
@@ -347,7 +259,6 @@
 
                 } catch (Exception $e) {
                     self::treatBasicExceptions($e);
-                    return;
 
                 }
             } else {
@@ -356,16 +267,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         /**
@@ -383,21 +285,12 @@
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $userManager = new UserManager();
-                    try {
-                        $userManager->logout();
-                        $responseData = json_encode(array('success' => 'User logged out'));
-                    } catch (NotLoggedInException $e) {
-                        $strErrorDesc = 'User not logged in';
-                        $strErrorHeader = 'HTTP/1.1 401 Unauthorized';
-                    } catch (Exception $e) {
-                        $strErrorDesc = $e->getMessage();
-                        $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-                    }
+                    $userManager->logout();
+                    $responseData = json_encode(array('success' => 'User logged out'));
+
 
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-
+                    self::treatBasicExceptions($e);
                 }
             } else {
                 $strErrorDesc = 'Method not supported';
@@ -405,16 +298,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
         /**
@@ -452,16 +336,7 @@
             }
 
             // send output
-            if (!$strErrorDesc) {
-                $this->sendOutput(
-                    $responseData,
-                    array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-                );
-            } else {
-                $this->sendOutput(json_encode(array('error' => $strErrorDesc)),
-                    array('Content-Type: application/json', $strErrorHeader)
-                );
-            }
+            self::sendData($strErrorDesc, $strErrorHeader, $responseData);
         }
 
     }
