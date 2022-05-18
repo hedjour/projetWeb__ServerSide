@@ -4,8 +4,8 @@
     require_once PROJECT_ROOT_PATH . 'Model/Database.php';
 
     use Auth\Exceptions\NotAuthorizedException;
-    use Cassandra\Date;
     use Database\Exceptions\DatabaseError;
+    use DateTime;
     use Exception;
     use Managers\UserManager;
 
@@ -68,37 +68,59 @@
         }
 
         /**
-         * get all messages which content is $content    exact match for the moment TODO change
-         * @param string $content The content of the message
-         * @return array The user's details
-         * @throws Exception If the message does not exist
+         * Full text search for message content
+         * @param $query string The query to search for
+         * @param $limit int The number of messages to get
+         * @return array The messages
+         * @throws Exception If the query is empty
          */
-        public function getMessageByContent(string $content): array
+        public function searchMessages(string $query, int $limit): array
         {
+            if (empty($query)) {
+                throw new Exception("Query cannot be empty");
+            }
+
             return $this->select("SELECT 
                                             {$this->getSafeFields()}
                                         FROM 
                                             message 
                                         WHERE 
-                                            content = ?",
-                ["s", $content]);
+                                            MATCH(content) AGAINST(?)
+                                        ORDER BY 
+                                            sent_date
+                                        LIMIT 
+                                            ?",
+                ["si", $query, $limit]);
         }
 
         /**
-         * get all messages which dates is $datesent    exact match for the moment TODO change
-         * @param Date $dateSent
-         * @return array
-         * @throws DatabaseError
-         */
-        public function getMessageByDateSent(date $dateSent): array
+         * Get messages in a datetime range
+         * @param $startDate DateTime The start date
+         * @param $endDate DateTime The end date
+         * @param $limit int The number of messages to get
+         * @return array The messages
+         * @throws Exception If the start date is after the end date
+         *
+         **/
+        public function getMessagesInDateRange(DateTime $startDate, DateTime $endDate, int $limit): array
         {
+            if ($startDate > $endDate) {
+                throw new Exception("Start date cannot be after end date");
+            }
+
             return $this->select("SELECT 
                                             {$this->getSafeFields()}
                                         FROM 
                                             message 
                                         WHERE 
-                                            sent_date = ?",
-                ["s", $dateSent]);
+                                            sent_date >= ?
+                                        AND 
+                                            sent_date <= ?
+                                        ORDER BY 
+                                            sent_date
+                                        LIMIT 
+                                            ?",
+                ["ssi", $startDate->format("Y-m-d H:i:s"), $endDate->format("Y-m-d H:i:s"), $limit]);
         }
 
         /**
