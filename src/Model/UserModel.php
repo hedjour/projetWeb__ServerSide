@@ -136,7 +136,6 @@
             } else {
                 throw new UserDoesNotExistException();
             }
-
         }
 
         /**
