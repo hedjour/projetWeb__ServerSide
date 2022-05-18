@@ -4,7 +4,7 @@ USE app_db;
 CREATE TABLE `user` (
     `id` integer PRIMARY KEY AUTO_INCREMENT,
     `username` varchar(150) UNIQUE NOT NULL,
-    `firstname` varchar(150),
+    `first_name` varchar(150),
     `email` varchar(300) UNIQUE,
     `surname` varchar(150),
     `password` char(128) NOT NULL,

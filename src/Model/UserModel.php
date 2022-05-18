@@ -16,8 +16,8 @@
     class UserModel extends Database
     {
         const USER_TABLE = "users";
-        const USER_FIELDS = "id, username,firstname, email, surname, date_joined, password, last_login, is_active, profile_picture";
-        const USER_FIELDS_SAFE = "id, username,firstname, email, surname, date_joined, last_login, is_active, profile_picture";
+        const USER_FIELDS = "id, username,first_name, email, surname, date_joined, password, last_login, is_active, profile_picture";
+        const USER_FIELDS_SAFE = "id, username,first_name, email, surname, date_joined, last_login, is_active, profile_picture";
 
 
         /**
@@ -221,7 +221,7 @@
          *
          * @param string $username The username of the user to create
          * @param string $password The password of the user to create
-         * @param string|null $firstname The firstname of the user to create
+         * @param string|null $first_name The first_name of the user to create
          * @param string|null $surname The surname of the user to create
          * @param string|null $email The email of the user to create
          * @param string|null $profilePicture The profile picture of the user to create
@@ -231,7 +231,7 @@
          * @throws UserAlreadyExistException
          * @throws DatabaseError
          */
-        public function createUser(string $username, string $password, string $firstname = null, string $surname = null,
+        public function createUser(string $username, string $password, string $first_name = null, string $surname = null,
                                    string $email = null, string $profilePicture = null): int
         {
             // check if the user already exists
@@ -242,9 +242,9 @@
             // validate the password
             $this->validatePassword($password);
             // create the user
-            return $this->insert("INSERT INTO user (username, password, firstname, surname, email, profile_picture) 
+            return $this->insert("INSERT INTO user (username, password, first_name, surname, email, profile_picture) 
                                 VALUES (?, ?, ?, ?, ?, ?)",
-                ["ssssss", $username, \password_hash($password, \PASSWORD_BCRYPT), $firstname, $surname, $email, $profilePicture]);
+                ["ssssss", $username, \password_hash($password, \PASSWORD_BCRYPT), $first_name, $surname, $email, $profilePicture]);
 
         }
 
@@ -253,7 +253,7 @@
          *
          * @param int $userId The id of the user to update
          * @param string|null $username The username of the user to update
-         * @param string|null $firstname The firstname of the user to update
+         * @param string|null $first_name The first_name of the user to update
          * @param string|null $surname The surname of the user to update
          * @param string|null $email The email of the user to update
          * @param string|null $profilePicture The profile picture of the user to update
@@ -267,7 +267,7 @@
          */
         public function updateUser(int    $userId,
                                    string $username = null,
-                                   string $firstname = null,
+                                   string $first_name = null,
                                    string $surname = null,
                                    string $email = null,
                                    string $profilePicture = null): int
@@ -284,9 +284,9 @@
                 $params[0] = $params[0] . "s";
 
             }
-            if ($firstname !== null) {
-                $fields .= "firstname = ?,";
-                $params[] = $firstname;
+            if ($first_name !== null) {
+                $fields .= "first_name = ?,";
+                $params[] = $first_name;
                 $params[0] = $params[0] . "s";
             }
             if ($surname !== null) {
