@@ -221,7 +221,7 @@
          *
          * @param string $username The username of the user to create
          * @param string $password The password of the user to create
-         * @param string|null $first_name The first_name of the user to create
+         * @param string|null $first_name The first name of the user to create
          * @param string|null $surname The surname of the user to create
          * @param string|null $email The email of the user to create
          * @param string|null $profilePicture The profile picture of the user to create
@@ -435,6 +435,38 @@
             if ($data == null) {
                 throw new UserDoesNotExistException("User with id $userId does not exist");
             }
+            return $data;
+        }
+
+        /**
+         * search of the username, firstname, email and surname of the user
+         *
+         * @param string $search
+         * @param int $limit
+         * @return array
+         * @throws DatabaseError
+         */
+        public function searchUser(string $search,int $limit=10): array{
+            $data = $this->select("
+                                        SELECT 
+                                            user.id,
+                                            user.username,
+                                            user.first_name,
+                                            user.surname,
+                                            user.email,
+                                            user.profile_picture
+                                        FROM user
+                                        WHERE user.username LIKE ?
+                                        OR user.first_name LIKE ?
+                                        OR user.surname LIKE ?
+                                        OR user.email LIKE ?
+                                        ORDER BY user.id
+                                        LIMIT ?", ["ssssi", "%".$search."%", "%".$search."%", "%".$search."%", "%".$search."%",$limit]);
+
+            if ($data == null) {
+                return [];
+            }
+
             return $data;
         }
 

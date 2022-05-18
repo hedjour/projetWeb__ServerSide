@@ -3,9 +3,11 @@
     namespace Models;
     require_once PROJECT_ROOT_PATH . 'Model/Database.php';
 
+    use Auth\Exceptions\NotAuthorizedException;
     use Cassandra\Date;
     use Database\Exceptions\DatabaseError;
     use Exception;
+    use Managers\UserManager;
 
     class MessageModel extends Database
     {
@@ -81,6 +83,27 @@
         }
 
         /**
+         * Create a new message in the database with the current datetime
+         *
+         * @param $content string The content of the message
+         * @param $userId int The ID of the user who sent the message
+         * @param $chatRoomId int The ID of the chat room the message was sent in
+         *
+         * @throws Exception
+         */
+        public function createMessage(string $content, int $userId, int $chatRoomId): int
+        {
+            $userManager = new UserManager();
+            if ($userManager->getLoggedInUserId() != $userId) {
+                throw new NotAuthorizedException();
+            }
+            return $this->insert("INSERT INTO message (content, user_id, chat_room_id, sent_date) VALUES (?, ?, ?, ?)",
+                ["s", $content, "i", $userId, "i", $chatRoomId, "d", date("Y-m-d H:i:s")]);
+        }
+
+
+
+        /**
          * modify a message
          *
          * @param int $msgId The id of the message to modify
@@ -90,6 +113,10 @@
          */
         public function modifyMessage(int    $msgId, string $content = ""): int
         {
+            $userManager = new UserManager();
+            if ($userManager->getLoggedInUserId() != self::getMessageById($msgId)["user_id"]) {
+                throw new NotAuthorizedException();
+            }
             return $this->update("UPDATE message SET content = ? WHERE id = ?",
                 ["si", $content, $msgId]);
         }

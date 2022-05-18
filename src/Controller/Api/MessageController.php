@@ -18,17 +18,14 @@
             if (strtoupper($requestMethod) == 'GET') {
                 try {
                     $messageModel = new MessageModel();
-
                     $intLimit = 10;
                     if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                         $intLimit = $arrQueryStringParams['limit'];
                     }
-
                     $arrMessage = $messageModel->getMessages($intLimit);
                     $responseData = json_encode($arrMessage);
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                    self::treatBasicExceptions($e);
 
                 }
             } else {
@@ -60,10 +57,11 @@
             if (strtoupper($requestMethod) == 'GET') {
                 try {
                     $messageModel = new MessageModel();
-
-                    $messageId = 10;        // ???? TODO change this
                     if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
                         $messageId = $arrQueryStringParams['id'];
+                    }
+                    else{
+                        throw new \InvalidArgumentException('Message id is required');
                     }
 
                     $arrMessage = $messageModel->getMessageById($messageId);
@@ -91,38 +89,31 @@
             }
         }
 
-        /*
-         * get chat room messages
-         * 
-         * 
+        /**
+         * create a new message
+         *
+         *
          */
-        public function getMessagesAction()
-        {
+        public function createAction(){
             $strErrorDesc = '';
             $responseData = array();
             $strErrorHeader = '';
             $requestMethod = $_SERVER["REQUEST_METHOD"];
             $arrQueryStringParams = $this->getGETData();
 
-            if (strtoupper($requestMethod) == 'GET') {
+            if (strtoupper($requestMethod) == 'POST') {
                 try {
-                    $messageModel = new MessageModel();
-
-                    $messageId = null;
-                    $limit = 10;
-                    if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
-                        if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
-                            $limit = $arrQueryStringParams['limit'];
-                        }
-                        $messageId = $arrQueryStringParams['id'];
+                    if (isset($arrQueryStringParams['userId']) && $arrQueryStringParams['userId']) {
+                        $userId = $arrQueryStringParams['userId'];
                     }
-
-                    $arrMessage = $messageModel->getMessages($messageId, $limit);
+                    else{
+                        throw new \InvalidArgumentException('User id is required');
+                    }
+                    $messageModel = new MessageModel();
+                    $arrMessage = $messageModel->createMessage($arrQueryStringParams);
                     $responseData = json_encode($arrMessage);
                 } catch (Exception $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-
+                    self::treatBasicExceptions($e);
                 }
             } else {
                 $strErrorDesc = 'Method not supported';
