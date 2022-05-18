@@ -255,7 +255,7 @@
          * @throws UserAlreadyExistException
          * @throws DatabaseError
          */
-        public function createUser(string $username, string $password, string $firstname = null, string $surname = null,
+        public function createUser(string $username, string $password, string $first_name = null, string $surname = null,
                                    string $email = null, string $profilePicture = null): int
         {
             // check if the user already exists
@@ -270,6 +270,7 @@
                                 VALUES (?, ?, ?, ?, ?, ?)",
                 ["ssssss", $username, password_hash($password, PASSWORD_BCRYPT), $firstname, $surname, $email, $profilePicture]);
 
+
         }
 
         /**
@@ -277,7 +278,7 @@
          *
          * @param int $userId The id of the user to update
          * @param string|null $username The username of the user to update
-         * @param string|null $firstname The firstname of the user to update
+         * @param string|null $first_name The first_name of the user to update
          * @param string|null $surname The surname of the user to update
          * @param string|null $email The email of the user to update
          * @param string|null $profilePicture The profile picture of the user to update
@@ -291,7 +292,7 @@
          */
         public function updateUser(int    $userId,
                                    string $username = null,
-                                   string $firstname = null,
+                                   string $first_name = null,
                                    string $surname = null,
                                    string $email = null,
                                    string $profilePicture = null): int
@@ -308,9 +309,9 @@
                 $params[0] = $params[0] . "s";
 
             }
-            if ($firstname !== null) {
+            if ($first_name !== null) {
                 $fields .= "first_name = ?,";
-                $params[] = $firstname;
+                $params[] = $first_name;
                 $params[0] = $params[0] . "s";
             }
             if ($surname !== null) {
