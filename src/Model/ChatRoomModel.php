@@ -6,6 +6,16 @@
 
     class ChatRoomModel extends Database
     {
+        const TABLE = "chat_room";
+        const FIELDS = [
+            "chat_room.id",
+            "chat_room.name",
+            "chat_room.description",
+            "chat_room.is_private",
+            "chat_room.created_at",
+            "chat_room.owner_id",
+        ];
+
         /**
          * Get all chat rooms
          *
@@ -37,7 +47,7 @@
         {
             return $this->select("SELECT user.id,
                                             user.username,
-                                            user.firstname,
+                                            user.first_name,
                                             user.email,
                                             user.surname,
                                             user.date_joined,
@@ -108,13 +118,22 @@
          * @return array The chat room
          * @throws Exception If the chat room does not exist
          */
-        public function createChatRoom(string $chatRoomName): array
+        public function createChatRoom(string $chatRoomName, int $ownerId): array
         {
             return $this->select("INSERT INTO 
-                                        chat_room (name) 
-                                        VALUES (?)
-                                        ", ["s", $chatRoomName]);
+                                        chat_room (name, owner_id,created_at)
+                                        VALUES (?, ?, ?)
+                                        ", ["sii", $chatRoomName, $ownerId, time()]);
         }
 
 
+        protected function generateSafeFields(): array
+        {
+            // TODO: Implement generateSafeFields() method.
+        }
+
+        protected function generateFields(): array
+        {
+            // TODO: Implement generateFields() method.
+        }
     }

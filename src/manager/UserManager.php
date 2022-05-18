@@ -9,6 +9,7 @@
     use Auth\Exceptions\UserAlreadyExistException;
     use Auth\Exceptions\UserDoesNotExistException;
     use Auth\Exceptions\WrongCredentialsException;
+    use Database\Exceptions\DatabaseError;
     use Exception;
     use Models\UserModel;
 
@@ -30,7 +31,7 @@
         /**
          * @var UserModel
          */
-        private $userModel;
+        private UserModel $userModel;
 
 
         public function __construct()
@@ -49,6 +50,7 @@
          * @throws InvalidEmailException
          * @throws InvalidPasswordException
          * @throws UserAlreadyExistException
+         * @throws DatabaseError
          */
         public function createUser(string $username, string $password, string $email = null, callable $callback = null): int
         {
@@ -65,7 +67,7 @@
          * @param int $userId the ID of the user
          * @throws Exception
          */
-        protected function onLoginSuccessful(int $userId)
+        protected function onLoginSuccessful(int $userId): void
         {
             session_unset();
 
@@ -89,7 +91,7 @@
          * @throws WrongCredentialsException
          * @throws Exception
          */
-        public function login(string $username, string $password)
+        public function login(string $username, string $password): void
         {
             $userData = $this->userModel->getUserByUsernameAndPassword($username);
             if (!\password_verify($password, $userData['password'])) {
@@ -128,8 +130,9 @@
          * @throws UserAlreadyExistException
          * @throws UserDoesNotExistException
          * @throws NotAuthorizedException
+         * @throws DatabaseError
          */
-        public function updateUser(...$args)
+        public function updateUser(...$args): void
         {
 
             $this->userModel->updateUser(...$args);
@@ -157,4 +160,5 @@
                 throw new NotLoggedInException("User is not logged in");
             }
         }
+
     }

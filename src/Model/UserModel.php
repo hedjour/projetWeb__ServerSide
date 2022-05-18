@@ -12,12 +12,36 @@
     use Database\Exceptions\DatabaseError;
 
     use Managers\UserManager;
+    use function password_hash;
+    use const PASSWORD_BCRYPT;
 
     class UserModel extends Database
     {
-        const USER_TABLE = "users";
-        const USER_FIELDS = "id, username,first_name, email, surname, date_joined, password, last_login, is_active, profile_picture";
-        const USER_FIELDS_SAFE = "id, username,first_name, email, surname, date_joined, last_login, is_active, profile_picture";
+        protected const TABLE = "user";
+
+        protected function generateSafeFields(): array
+        {
+            return [
+                "user.id",
+                "user.username",
+                "user.first_name",
+                "user.email",
+                "user.surname",
+                "user.date_joined",
+                "user.password",
+                "user.last_login",
+                "user.is_active",
+                "user.profile_picture"
+            ];
+
+        }
+
+        protected function generateFields(): array
+        {
+            $array = $this->generateSafeFields();
+            $array[] = "user.password";
+            return $array;
+        }
 
 
         /**
@@ -31,9 +55,9 @@
         public function getUsers(int $limit): array
         {
             return $this->select("SELECT 
-                                            " . $this::USER_FIELDS_SAFE . "
+                                            {$this->getSafeFields()}
                                         FROM 
-                                            user 
+                                            user
                                         ORDER BY 
                                             id 
                                         LIMIT 
@@ -51,9 +75,9 @@
         public function getUserById(int $id): array
         {
             $data = $this->select("SELECT 
-                                            " . $this::USER_FIELDS_SAFE . "
+                                            {$this->getSafeFields()}
                                         FROM 
-                                            user 
+                                            user
                                         WHERE 
                                             id = ?",
                 ["i", $id]);
@@ -74,9 +98,9 @@
         {
 
             $data = $this->select("SELECT 
-                                            " . $this::USER_FIELDS_SAFE . "
+                                            {$this->getSafeFields()}
                                         FROM 
-                                            user 
+                                            user
                                         WHERE 
                                             username = ?",
                 ["s", $username]);
@@ -100,7 +124,7 @@
         public function getUserByEmail(string $userEmail): array
         {
             $data = $this->select("SELECT 
-                                            " . $this::USER_FIELDS_SAFE . "
+                                            {$this->getSafeFields()}
                                         FROM 
                                             user 
                                         WHERE 
@@ -123,9 +147,8 @@
          */
         public function getUserByUsernameAndPassword(string $username): array
         {
-
             $data = $this->select("SELECT 
-                                            " . $this::USER_FIELDS . "
+                                            {$this->getFields()}
                                         FROM 
                                             user 
                                         WHERE 
@@ -136,6 +159,7 @@
             } else {
                 throw new UserDoesNotExistException();
             }
+
 
         }
 
@@ -221,7 +245,7 @@
          *
          * @param string $username The username of the user to create
          * @param string $password The password of the user to create
-         * @param string|null $first_name The first name of the user to create
+         * @param string|null $firstname The firstname of the user to create
          * @param string|null $surname The surname of the user to create
          * @param string|null $email The email of the user to create
          * @param string|null $profilePicture The profile picture of the user to create
@@ -244,7 +268,8 @@
             // create the user
             return $this->insert("INSERT INTO user (username, password, first_name, surname, email, profile_picture) 
                                 VALUES (?, ?, ?, ?, ?, ?)",
-                ["ssssss", $username, \password_hash($password, \PASSWORD_BCRYPT), $first_name, $surname, $email, $profilePicture]);
+                ["ssssss", $username, password_hash($password, PASSWORD_BCRYPT), $firstname, $surname, $email, $profilePicture]);
+
 
         }
 
@@ -419,14 +444,11 @@
                 throw new NotAuthorizedException();
             }
 
+            $messageModel = new MessageModel();
 
             $data = $this->select("
                                         SELECT 
-                                            message.id,
-                                            message.user_id,
-                                            message.chat_room_id,
-                                            message.content,
-                                            message.sent_date
+                                            {$messageModel->getSafeFields()}
                                         FROM message
                                         INNER JOIN user
                                         ON message.user_id = user.id
@@ -446,22 +468,19 @@
          * @return array
          * @throws DatabaseError
          */
-        public function searchUser(string $search,int $limit=10): array{
+        public function searchUser(string $search, int $limit = 10): array
+        {
             $data = $this->select("
                                         SELECT 
-                                            user.id,
-                                            user.username,
-                                            user.first_name,
-                                            user.surname,
-                                            user.email,
-                                            user.profile_picture
+                                            {$this->getSafeFields()}
                                         FROM user
                                         WHERE user.username LIKE ?
                                         OR user.first_name LIKE ?
                                         OR user.surname LIKE ?
                                         OR user.email LIKE ?
                                         ORDER BY user.id
-                                        LIMIT ?", ["ssssi", "%".$search."%", "%".$search."%", "%".$search."%", "%".$search."%",$limit]);
+                                        LIMIT ?",
+                ["ssssi", "%" . $search . "%", "%" . $search . "%", "%" . $search . "%", "%" . $search . "%", $limit]);
 
             if ($data == null) {
                 return [];
@@ -469,5 +488,6 @@
 
             return $data;
         }
+
 
     }

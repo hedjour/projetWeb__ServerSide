@@ -1,13 +1,19 @@
 <?php
 
 
-namespace Models;
-use Database\Exceptions\DatabaseError;
-use mysqli;
-use mysqli_stmt;
-    class Database
+    namespace Models;
+
+    use Database\Exceptions\DatabaseError;
+    use mysqli;
+    use mysqli_stmt;
+
+    abstract class Database
     {
-        protected $connection = null;
+        protected ?mysqli $connection = null;
+        protected const TABLE = "";
+        protected array $FIELDS;
+        protected array $FIELDS_SAFE;
+
 
         /**
          * @throws DatabaseError
@@ -23,7 +29,35 @@ use mysqli_stmt;
             } catch (DatabaseError $e) {
                 throw new DatabaseError($e->getMessage());
             }
+            $this->FIELDS = $this->generateSafeFields();
+            $this->FIELDS_SAFE = $this->generateFields();
         }
+
+        abstract protected function generateSafeFields(): array;
+        abstract protected function generateFields(): array;
+
+
+        /**
+         * Get the safe fields seperated by commas
+         *
+         * @return string
+         */
+        public function getSafeFields(): string
+        {
+            return implode(", ", $this->FIELDS_SAFE);
+        }
+
+        /**
+         * Get the fields seperated by commas
+         *
+         *
+         * @return string
+         */
+        protected function getFields(): string
+        {
+            return implode(", ", $this->FIELDS);
+        }
+
 
         /**
          * Selects rows from the database
