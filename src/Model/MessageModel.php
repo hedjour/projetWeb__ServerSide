@@ -11,6 +11,25 @@
 
     class MessageModel extends Database
     {
+        const  TABLE = "message";
+
+        protected function generateSafeFields(): array
+        {
+            return [
+                "message.id",
+                "message.user_id",
+                "message.chat_room_id",
+                "message.content",
+                "message.sent_date"
+            ];
+        }
+
+        protected function generateFields(): array
+        {
+            return $this->generateSafeFields();
+        }
+
+
         /**
          * Get all messages
          *
@@ -20,15 +39,15 @@
          */
         public function getMessages(int $limit): array
         {
-                return $this->select("SELECT 
-                                            *
+            return $this->select("SELECT 
+                                            {$this->getSafeFields()}
                                         FROM 
-                                            message 
+                                            message
                                         ORDER BY 
                                             sent_date
                                         LIMIT 
                                             ?",
-                    ["i", $limit]);
+                ["i", $limit]);
         }
 
         /**
@@ -40,7 +59,7 @@
         public function getMessageById(int $id): array
         {
             return $this->select("SELECT 
-                                            *
+                                            {$this->getSafeFields()}
                                         FROM 
                                             message 
                                         WHERE 
@@ -57,7 +76,7 @@
         public function getMessageByContent(string $content): array
         {
             return $this->select("SELECT 
-                                            *
+                                            {$this->getSafeFields()}
                                         FROM 
                                             message 
                                         WHERE 
@@ -74,7 +93,7 @@
         public function getMessageByDateSent(date $dateSent): array
         {
             return $this->select("SELECT 
-                                            *
+                                            {$this->getSafeFields()}
                                         FROM 
                                             message 
                                         WHERE 
@@ -102,7 +121,6 @@
         }
 
 
-
         /**
          * modify a message
          *
@@ -111,7 +129,7 @@
          * @return int the id of the updated message
          * @throws Exception If the message doesn't exist
          */
-        public function modifyMessage(int    $msgId, string $content = ""): int
+        public function modifyMessage(int $msgId, string $content = ""): int
         {
             $userManager = new UserManager();
             if ($userManager->getLoggedInUserId() != self::getMessageById($msgId)["user_id"]) {
@@ -132,4 +150,6 @@
         {
             return $this->delete("DELETE FROM message WHERE id = ?", ["i", $msgId]);
         }
+
+
     }
