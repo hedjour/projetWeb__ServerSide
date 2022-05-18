@@ -103,4 +103,14 @@ use Exception;
         {
             return $this->delete("DELETE FROM pixel WHERE id = ?", ["i", $msgId]);
         }
+
+        protected function generateSafeFields(): array
+        {
+            // TODO: Implement generateSafeFields() method.
+        }
+
+        protected function generateFields(): array
+        {
+            // TODO: Implement generateFields() method.
+        }
     }
