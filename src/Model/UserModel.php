@@ -160,7 +160,6 @@
                 throw new UserDoesNotExistException();
             }
 
-
         }
 
         /**
@@ -268,6 +267,7 @@
             // create the user
             return $this->insert("INSERT INTO user (username, password, first_name, surname, email, profile_picture) 
                                 VALUES (?, ?, ?, ?, ?, ?)",
+
                 ["ssssss", $username, password_hash($password, PASSWORD_BCRYPT), $first_name, $surname, $email, $profilePicture]);
 
 

@@ -8,6 +8,7 @@
     {
         const TABLE = "chat_room";
 
+
         protected function generateSafeFields(): array
         {
             return [

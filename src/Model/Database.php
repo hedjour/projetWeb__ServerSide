@@ -31,6 +31,7 @@
             }
             $this->FIELDS = $this->generateSafeFields();
             $this->FIELDS_SAFE = $this->generateFields();
+
         }
 
         abstract protected function generateSafeFields(): array;

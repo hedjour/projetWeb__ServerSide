@@ -134,8 +134,10 @@ INSERT INTO chat_room (name, owner_id, created_at)
 VALUES ('chat_room1', 1, '2018-01-01 00:00:00');
 INSERT INTO chat_room (name, owner_id, created_at)
 VALUES ('chat_room2', 2, '2018-01-01 00:00:00');
+
 INSERT INTO chat_room (name, owner_id, created_at, description)
 VALUES ('chat_room3', 3, '2018-01-01 00:00:00', 'This is a chat room for testing');
+
 # create debug chatroom relations
 # chat_room1 has user1, user2, user3
 INSERT INTO chat_room_user (chat_room_id, user_id)
