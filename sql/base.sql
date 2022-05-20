@@ -243,3 +243,6 @@ VALUES (16, 8, 8, 8, 4, '2018-01-01 00:00:00', 1);
 
 
 
+CREATE INDEX  pixel_position_index ON pixel (x_position, y_position);
+CREATE INDEX  pixel_color_index ON pixel (color_id);
+CREATE INDEX  pixel_user_index ON pixel (user_id);

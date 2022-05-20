@@ -25,12 +25,10 @@
 
     $pixelModel = new \Models\PixelModel();
 //    echo $pixelModel->updatePixel(1,1,2,1);
-    for ($x=0; $x<10; $x++) {
-        for ($y=0; $y<10; $y++) {
-            try {
-                echo $pixelModel->createPixel($x, $y, rand(1, 7), rand(1, 3));
-            } catch (Exception){
-                echo 'Error<br>';
-            }
+    for ($x = 0; $x < 100000; $x++) {
+        try {
+            $pixelModel->createPixel(rand(0,10000), rand(0,10000), rand(1, 7), rand(1, 3));
+        } catch (Exception) {
+//                echo 'Error<br>';
         }
     }
