@@ -3,32 +3,53 @@
     namespace Models;
     require_once PROJECT_ROOT_PATH . 'Model/Database.php';
 
-use Exception;
+    use Auth\Exceptions\PixelAlreadyExistException;
+    use Database\Exceptions\DatabaseError;
+    use Exception;
 
     class PixelModel extends Database
     {
-        /**
-         * Get adjacent pixels
-         *
-         * @param $limit int The number of pixels to get
-         * @return array
-         * @throws Exception
-         */
-        public function getPixels(int $limit=null, int $beginning=0): array
+        protected function generateSafeFields(): array
         {
-
-                return $this->select("SELECT 
-                                            *
-                                        FROM 
-                                            pixels 
-                                        ORDER BY 
-                                            id
-                                        WHERE 
-                                            id >= ?
-                                        LIMIT 
-                                            ?",
-                    ["i", $limit, $beginning]);
+            return [
+                "pixel.id",
+                "x_position",
+                "y_position",
+                "color_id",
+                "user_id",
+                "last_updated",
+                "number_of_time_placed"
+            ];
         }
+
+        protected function generateFields(): array
+        {
+            return $this->generateSafeFields();
+        }
+
+        /**
+         * Get pixels in a rectangle
+         * @param int $x1 The x position of the top left corner
+         * @param int $y1 The y position of the top left corner
+         * @param int $x2 The x position of the bottom right corner
+         * @param int $y2 The y position of the bottom right corner
+         * @return array The pixels in the rectangle
+         * @throws DatabaseError
+         */
+        public function getPixelsInRectangle(int $x1, int $y1, int $x2, int $y2): array
+        {
+            return $this->select("SELECT 
+                                            {$this->getSafeFields()}
+                                        FROM 
+                                            pixel
+                                        WHERE 
+                                            x_position >= ?
+                                            AND x_position <= ?
+                                            AND y_position >= ?
+                                            AND y_position <= ?",
+                ["iiii", $x1, $x2, $y1, $y2]);
+        }
+
 
         /**
          * Get a pixel by their ID
@@ -48,51 +69,47 @@ use Exception;
         }
 
         /**
-         * get all pixels which datesent is $datesent    exact match for the moment TODO change
-         * @param string $datesent The date of the pixel to match
-         * @return array The pixel's details
-         * @throws Exception If the pixel does not exist
-         */
-        public function getPixelByDatesent(string $datesent): array
+         * Get all pixels in a rectangle after a certain datetime
+         * @return array The pixels
+         * @throws Exception
+         **/
+        public function getPixelsAfterDate(int $x1, int $y1, int $x2, int $y2, string $date): array
         {
             return $this->select("SELECT 
-                                            *
+                                            {$this->getSafeFields()}
                                         FROM 
-                                            pixel 
+                                            pixel
                                         WHERE 
-                                            datesent = ?",
-                ["d", $datesent]);
+                                            x_position >= ?
+                                            AND x_position <= ?
+                                            AND y_position >= ?
+                                            AND y_position <= ?
+                                            AND last_updated >= ?",
+                ["iiii", $x1, $x2, $y1, $y2, $date]);
         }
 
-        /**
-         * get all pixels which datesent is over $date
-         * @param string $date The date to compare
-         * @return array The pixel's details
-         * @throws Exception If the pixel does not exist
-         */
-        public function getPixelSentAfterDate(string $date): array
-        {
-            return $this->select("SELECT 
-                                            *
-                                        FROM 
-                                            pixel 
-                                        WHERE 
-                                            datesent >= ?",
-                ["d", $date]);
-        }
 
         /**
-         * modify a pixel
+         * modify a pixel at a certain xy position
          *
-         * @param int $msgId The id of the pixel to modify
-         * @param string $content The modified content
-         * @return int the id of the updated pixel
-         * @throws Exception If the pixel doesn't exist
+         * @param int $x The x position of the pixel
+         * @param int $y The y position of the pixel
+         * @param int $color_id The color of the pixel
+         * @param int $user_id The user who placed the pixel
+         *
+         * @throws DatabaseError
          */
-        public function modifyPixel(int $msgId, string $content = ""): int
+        public function updatePixel(int $x, int $y, int $color_id, int $user_id): int
         {
-            return $this->update("UPDATE pixel SET color = ? WHERE id = ?",
-                ["ii", $content, $msgId]);
+            return $this->update("UPDATE 
+                                    pixel 
+                                 SET 
+                                    color_id = ?,
+                                    user_id = ?,
+                                    last_updated = NOW(),
+                                    number_of_times_placed = number_of_times_placed + 1
+                                 WHERE x_position = ? AND y_position = ?",
+                ["iiii", $color_id, $user_id, $x, $y]);
         }
 
         /**
@@ -107,15 +124,32 @@ use Exception;
             return $this->delete("DELETE FROM pixel WHERE id = ?", ["i", $msgId]);
         }
 
-
-        protected function generateSafeFields(): array
+        /**
+         * Create a new pixel
+         * @param int $x The x position of the pixel
+         * @param int $y The y position of the pixel
+         * @param int $color_id The color of the pixel
+         * @param int $user_id The user who placed the pixel
+         * @return int The id of the pixel
+         * @throws DatabaseError
+         * @throws PixelAlreadyExistException
+         */
+        public function createPixel(int $x, int $y, int $color_id, int $user_id): int
         {
-            // TODO: Implement generateSafeFields() method.
-        }
-
-        protected function generateFields(): array
-        {
-            // TODO: Implement generateFields() method.
+            // check if the pixel already exists
+            $pixel = $this->select("SELECT * FROM pixel WHERE x_position = ? AND y_position = ?", ["ii", $x, $y]);
+            if (count($pixel) > 0) {
+                throw new PixelAlreadyExistException("Pixel already exists");
+            }
+            return $this->insert("INSERT INTO 
+                                            pixel 
+                                                (x_position,
+                                                 y_position,
+                                                 color_id,
+                                                 user_id,
+                                                 last_updated,
+                                                 number_of_times_placed) 
+                                            VALUES (?, ?, ?, ?, NOW(), 1)", ["iiii", $x, $y, $color_id, $user_id]);
         }
     }
 

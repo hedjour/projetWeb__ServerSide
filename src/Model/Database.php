@@ -31,6 +31,7 @@
             }
             $this->FIELDS = $this->generateSafeFields();
             $this->FIELDS_SAFE = $this->generateFields();
+
         }
 
         abstract protected function generateSafeFields(): array;
@@ -163,5 +164,16 @@
             } catch (DatabaseError $e) {
                 throw new DatabaseError($e->getMessage());
             }
+        }
+
+        /**
+         *
+         *
+         *
+         * @throws DatabaseError
+         */
+        protected function getLastInsertId()
+        {
+            return $this->select("SELECT LAST_INSERT_ID()")[0]["LAST_INSERT_ID()"];
         }
     }
