@@ -66,21 +66,20 @@ CREATE TABLE `message`
 
 CREATE TABLE `pixel`
 (
-    `id`                    int PRIMARY KEY AUTO_INCREMENT,
-    `x_position`            integer,
-    `y_position`            integer,
-    `color_id`              int NOT NULL,
-    `user_id`               int NOT NULL,
-    `time_placed`           datetime,
-    `number_of_time_placed` int
+    `id`                     int PRIMARY KEY AUTO_INCREMENT,
+    `x_position`             integer,
+    `y_position`             integer,
+    `color_id`               int NOT NULL,
+    `user_id`                int NOT NULL,
+    `last_updated`           datetime,
+    `number_of_times_placed` int
 );
 
 CREATE TABLE `color`
 (
-    `id`    integer PRIMARY KEY AUTO_INCREMENT,
-    `red`   int,
-    `green` int,
-    `blue`  int
+    `id`       integer PRIMARY KEY AUTO_INCREMENT,
+    `name`     varchar(200),
+    `hex_code` char(7) NOT NULL
 );
 
 ALTER TABLE `chat_room`
@@ -135,8 +134,10 @@ INSERT INTO chat_room (name, owner_id, created_at)
 VALUES ('chat_room1', 1, '2018-01-01 00:00:00');
 INSERT INTO chat_room (name, owner_id, created_at)
 VALUES ('chat_room2', 2, '2018-01-01 00:00:00');
-INSERT INTO chat_room (name, owner_id, created_at,description)
-VALUES ('chat_room3', 3, '2018-01-01 00:00:00','This is a chat room for testing');
+
+INSERT INTO chat_room (name, owner_id, created_at, description)
+VALUES ('chat_room3', 3, '2018-01-01 00:00:00', 'This is a chat room for testing');
+
 # create debug chatroom relations
 # chat_room1 has user1, user2, user3
 INSERT INTO chat_room_user (chat_room_id, user_id)
@@ -166,13 +167,79 @@ INSERT INTO message (user_id, chat_room_id, content, sent_date)
 VALUES (4, 2, 'HELLO 1!', '2016-01-01 00:00:01');
 INSERT INTO message (user_id, chat_room_id, content, sent_date)
 VALUES (3, 2, 'HELLO 2!', '2016-01-01 00:00:01');
-SELECT message.id,
-       message.id,
-       message.user_id,
-       message.chat_room_id,
-       message.content,
-       message.sent_date
-FROM message
-         INNER JOIN user ON message.user_id = user.id
-WHERE message.chat_room_id = 1
-ORDER BY message.sent_date
+
+# insert 10 test colors
+INSERT INTO color (name, hex_code)
+VALUES ('red', '#FF0000');
+INSERT INTO color (name, hex_code)
+VALUES ('green', '#00FF00');
+INSERT INTO color (name, hex_code)
+VALUES ('blue', '#0000FF');
+INSERT INTO color (name, hex_code)
+VALUES ('yellow', '#FFFF00');
+INSERT INTO color (name, hex_code)
+VALUES ('black', '#000000');
+INSERT INTO color (name, hex_code)
+VALUES ('white', '#FFFFFF');
+INSERT INTO color (name, hex_code)
+VALUES ('orange', '#FFA500');
+INSERT INTO color (name, hex_code)
+VALUES ('purple', '#800080');
+INSERT INTO color (name, hex_code)
+VALUES ('pink', '#FFC0CB');
+INSERT INTO color (name, hex_code)
+VALUES ('brown', '#A52A2A');
+INSERT INTO color (name, hex_code)
+VALUES ('grey', '#808080');
+INSERT INTO color (name, hex_code)
+VALUES ('cyan', '#00FFFF');
+INSERT INTO color (name, hex_code)
+VALUES ('magenta', '#FF00FF');
+INSERT INTO color (name, hex_code)
+VALUES ('turquoise', '#40E0D0');
+INSERT INTO color (name, hex_code)
+VALUES ('gold', '#FFD700');
+INSERT INTO color (name, hex_code)
+VALUES ('silver', '#C0C0C0');
+
+
+# insert 100 pixels in a rectangle of size 100x100
+# with random colors
+# and random positions
+# and random users
+
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (1, 1, 1, 1, 1, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (2, 2, 2, 2, 2, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (3, 3, 3, 3, 3, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (4, 4, 4, 4, 4, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (5, 5, 5, 5, 1, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (6, 6, 6, 6, 2, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (7, 7, 7, 7, 3, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (8, 8, 8, 8, 4, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (9, 8, 1, 1, 1, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (10, 8, 2, 2, 2, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (11, 8, 3, 3, 3, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (12, 8, 4, 4, 4, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (13, 8, 5, 5, 1, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (14, 8, 6, 6, 2, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (15, 8, 7, 7, 3, '2018-01-01 00:00:00', 1);
+INSERT INTO pixel (id, x_position, y_position, color_id, user_id, last_updated, number_of_times_placed)
+VALUES (16, 8, 8, 8, 4, '2018-01-01 00:00:00', 1);
+
+
+

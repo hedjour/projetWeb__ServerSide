@@ -7,14 +7,24 @@
     class ChatRoomModel extends Database
     {
         const TABLE = "chat_room";
-        const FIELDS = [
-            "chat_room.id",
-            "chat_room.name",
-            "chat_room.description",
-            "chat_room.is_private",
-            "chat_room.created_at",
-            "chat_room.owner_id",
-        ];
+
+
+        protected function generateSafeFields(): array
+        {
+            return [
+                "chat_room.id",
+                "chat_room.name",
+                "chat_room.description",
+                "chat_room.is_private",
+                "chat_room.created_at",
+                "chat_room.owner_id",
+            ];
+        }
+
+        protected function generateFields(): array
+        {
+            return $this->generateSafeFields();
+        }
 
         /**
          * Get all chat rooms
@@ -45,15 +55,10 @@
          */
         public function getUsers(int $chatRoomId): array
         {
-            return $this->select("SELECT user.id,
-                                            user.username,
-                                            user.first_name,
-                                            user.email,
-                                            user.surname,
-                                            user.date_joined,
-                                            user.last_login,
-                                            user.is_active,
-                                            user.profile_picture
+            $userModel = new UserModel();
+
+            return $this->select("SELECT 
+                                            {$userModel->getSafeFields()}
                                         FROM user
                                         INNER JOIN chat_room_user
                                         ON user.id = chat_room_user.user_id
@@ -122,18 +127,9 @@
         {
             return $this->select("INSERT INTO 
                                         chat_room (name, owner_id,created_at)
-                                        VALUES (?, ?, ?)
-                                        ", ["sii", $chatRoomName, $ownerId, time()]);
+                                        VALUES (?, ?, NOW())
+                                        ", ["si", $chatRoomName, $ownerId]);
         }
 
 
-        protected function generateSafeFields(): array
-        {
-            // TODO: Implement generateSafeFields() method.
-        }
-
-        protected function generateFields(): array
-        {
-            // TODO: Implement generateFields() method.
-        }
     }

@@ -159,6 +159,7 @@
             } else {
                 throw new UserDoesNotExistException();
             }
+
         }
 
         /**
@@ -226,8 +227,8 @@
             // Validate password strength
             $uppercase = preg_match('@[A-Z]@', $password);
             $lowercase = preg_match('@[a-z]@', $password);
-            $number = preg_match('@[0-9]@', $password);
-            $specialChars = preg_match('@[^\w]@', $password);
+            $number = preg_match('@\d@', $password);
+            $specialChars = preg_match('@\W@', $password);
 
             if (!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
                 // cancel the operation and report the violation of this requirement
@@ -243,15 +244,15 @@
          *
          * @param string $username The username of the user to create
          * @param string $password The password of the user to create
-         * @param string|null $first_name The first name of the user to create
+         * @param string|null $first_name
          * @param string|null $surname The surname of the user to create
          * @param string|null $email The email of the user to create
          * @param string|null $profilePicture The profile picture of the user to create
          * @return int the id of the new user
+         * @throws DatabaseError
          * @throws InvalidEmailException
          * @throws InvalidPasswordException
          * @throws UserAlreadyExistException
-         * @throws DatabaseError
          */
         public function createUser(string $username, string $password, string $first_name = null, string $surname = null,
                                    string $email = null, string $profilePicture = null): int
@@ -274,7 +275,7 @@
          *
          * @param int $userId The id of the user to update
          * @param string|null $username The username of the user to update
-         * @param string|null $first_name The first_name of the user to update
+         * @param string|null $firstName The first_name of the user to update
          * @param string|null $surname The surname of the user to update
          * @param string|null $email The email of the user to update
          * @param string|null $profilePicture The profile picture of the user to update
@@ -288,7 +289,7 @@
          */
         public function updateUser(int    $userId,
                                    string $username = null,
-                                   string $first_name = null,
+                                   string $firstName = null,
                                    string $surname = null,
                                    string $email = null,
                                    string $profilePicture = null): int
@@ -305,9 +306,9 @@
                 $params[0] = $params[0] . "s";
 
             }
-            if ($first_name !== null) {
+            if ($firstName !== null) {
                 $fields .= "first_name = ?,";
-                $params[] = $first_name;
+                $params[] = $firstName;
                 $params[0] = $params[0] . "s";
             }
             if ($surname !== null) {
@@ -457,7 +458,7 @@
         }
 
         /**
-         * search of the username, firstname, email and surname of the user
+         * search of the username, first name, email and surname of the user
          *
          * @param string $search
          * @param int $limit
