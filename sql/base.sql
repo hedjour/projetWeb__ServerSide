@@ -24,7 +24,9 @@ CREATE TABLE `chat_room`
     `name`        varchar(150) NOT NULL,
     `owner_id`    integer      NOT NULL,
     `created_at`  datetime     NOT NULL,
-    `description` text
+    `description` text,
+    INDEX fk_owner_id_idx (owner_id ASC),
+    CONSTRAINT fk_owner_id_idx FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`);
 );
 
 CREATE TABLE `moderator`
@@ -82,37 +84,29 @@ CREATE TABLE `color`
     `hex_code` char(7) NOT NULL
 );
 
-ALTER TABLE `chat_room`
-    ADD FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`);
+
+# Pas besoin de alter tab vous pouvez ajouter ces commandes à la création des tables.
+# Penser à ajouter des contraintes. J'ai modifié chatroom pour l'exemple
+
 
 ALTER TABLE `moderator`
-    ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `moderator`
+    ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
     ADD FOREIGN KEY (`chat_room_id`) REFERENCES `chat_room` (`id`);
 
 ALTER TABLE `moderator_permission`
-    ADD FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`);
-
-ALTER TABLE `moderator_permission`
+    ADD FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`),
     ADD FOREIGN KEY (`moderator_id`) REFERENCES `moderator` (`id`);
 
 ALTER TABLE `chat_room_user`
-    ADD FOREIGN KEY (`chat_room_id`) REFERENCES `chat_room` (`id`);
-
-ALTER TABLE `chat_room_user`
+    ADD FOREIGN KEY (`chat_room_id`) REFERENCES `chat_room` (`id`),
     ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 ALTER TABLE `message`
-    ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
-ALTER TABLE `message`
+    ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
     ADD FOREIGN KEY (`chat_room_id`) REFERENCES `chat_room` (`id`);
 
 ALTER TABLE `pixel`
-    ADD FOREIGN KEY (`color_id`) REFERENCES `color` (`id`);
-
-ALTER TABLE `pixel`
+    ADD FOREIGN KEY (`color_id`) REFERENCES `color` (`id`),
     ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 # create debug users
